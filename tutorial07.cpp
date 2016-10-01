@@ -244,7 +244,97 @@ int main( void )
     //******************************************************************************
     //******************************************************************************
     //******************************************************************************
+    //START OF FRONT RIGHT TIRE
+    	// Get a handle for our "MVP" uniform
+    	GLuint frontRightTireMatrixID = glGetUniformLocation(programID, "MVP");
+    
+    	// Load the texture
+        GLuint frontRightTireTexture = loadPNG("tire.png");
+    	// Get a handle for our "myTextureSampler" uniform
+    	GLuint frontRightTireTextureID  = glGetUniformLocation(programID, "myTextureSampler");
+    
+    	// Read our .obj file
+    	std::vector<glm::vec3> frontRightTireVertices;
+    	std::vector<glm::vec2> frontRightTireUVS;
+    	std::vector<glm::vec3> frontRightTireNormals; // Won't be used at the moment.
+    	bool frontRightTireRes = loadOBJ("tire.obj", frontRightTireVertices, frontRightTireUVS, frontRightTireNormals);
+    
+    
+    	// Load it into a VBO
+    
+    	GLuint frontRightTireVertexbuffer;
+    	glGenBuffers(1, &frontRightTireVertexbuffer);
+    	glBindBuffer(GL_ARRAY_BUFFER, frontRightTireVertexbuffer);
+    	glBufferData(GL_ARRAY_BUFFER, frontRightTireVertices.size() * sizeof(glm::vec3), &frontRightTireVertices[0], GL_STATIC_DRAW);
+    
+        GLuint frontRightTireUVBuffer;
+        glGenBuffers(1, &frontRightTireUVBuffer);
+    	glBindBuffer(GL_ARRAY_BUFFER, frontRightTireUVBuffer);
+    	glBufferData(GL_ARRAY_BUFFER, frontRightTireUVS.size() * sizeof(glm::vec2), &frontRightTireUVS[0], GL_STATIC_DRAW);
+    //END OF FRONT RIGHT TIRE
+    //******************************************************************************
+    //******************************************************************************
+    //******************************************************************************
+    //******************************************************************************
+    //BACK RIGHT TIRE
+      // Get a handle for our "MVP" uniform
+      GLuint backRightTireMatrixID = glGetUniformLocation(programID, "MVP");
+    
+      // Load the texture
+        GLuint backRightTireTexture = loadPNG("tire.png");
+      // Get a handle for our "myTextureSampler" uniform
+      GLuint backRightTireTextureID  = glGetUniformLocation(programID, "myTextureSampler");
+    
+      // Read our .obj file
+      std::vector<glm::vec3> backRightTireVertices;
+      std::vector<glm::vec2> backRightTireUVS;
+      std::vector<glm::vec3> backRightTireNormals; // Won't be used at the moment.
+      bool backRightTireRes = loadOBJ("tire.obj", backRightTireVertices, backRightTireUVS, backRightTireNormals);
+    
+    
+      // Load it into a VBO
+    
+      GLuint backRightTireVertexbuffer;
+      glGenBuffers(1, &backRightTireVertexbuffer);
+      glBindBuffer(GL_ARRAY_BUFFER, backRightTireVertexbuffer);
+      glBufferData(GL_ARRAY_BUFFER, backRightTireVertices.size() * sizeof(glm::vec3), &backRightTireVertices[0], GL_STATIC_DRAW);
+    
+      GLuint backRightTireUVBuffer;
+      glGenBuffers(1, &backRightTireUVBuffer);
+      glBindBuffer(GL_ARRAY_BUFFER, backRightTireUVBuffer);
+      glBufferData(GL_ARRAY_BUFFER, backRightTireUVS.size() * sizeof(glm::vec2), &backRightTireUVS[0], GL_STATIC_DRAW);
+    //******************************************************************************
+    //******************************************************************************
+    //******************************************************************************
+    //******************************************************************************
+    //BACK LEFT TIRE
 
+    
+      GLuint backLeftTireMatrixID = glGetUniformLocation(programID, "MVP");
+    
+      // Load the texture
+        GLuint backLeftTireTexture = loadPNG("tire.png");
+      // Get a handle for our "myTextureSampler" uniform
+      GLuint backLeftTireTextureID  = glGetUniformLocation(programID, "myTextureSampler");
+    
+      // Read our .obj file
+      std::vector<glm::vec3> backLeftTireVertices;
+      std::vector<glm::vec2> backLeftTireUVs;
+      std::vector<glm::vec3> backLeftTireNormals; // Won't be used at the moment.
+      bool backLeftTireRes = loadOBJ("tire.obj", backLeftTireVertices, backLeftTireUVs, backLeftTireNormals);
+    
+    
+      // Load it into a VBO
+    
+      GLuint backLeftTireVertexbuffer;
+      glGenBuffers(1, &backLeftTireVertexbuffer);
+      glBindBuffer(GL_ARRAY_BUFFER, backLeftTireVertexbuffer);
+      glBufferData(GL_ARRAY_BUFFER, backLeftTireVertices.size() * sizeof(glm::vec3), &backLeftTireVertices[0], GL_STATIC_DRAW);
+    
+      GLuint backLeftTireUVBuffer;
+      glGenBuffers(1, &backLeftTireUVBuffer);
+      glBindBuffer(GL_ARRAY_BUFFER, backLeftTireUVBuffer);
+      glBufferData(GL_ARRAY_BUFFER, backLeftTireUVs.size() * sizeof(glm::vec2), &backLeftTireUVs[0], GL_STATIC_DRAW);
     do{
 
 		// Clear the screen
@@ -257,14 +347,150 @@ int main( void )
 		computeMatricesFromInputs();
 		glm::mat4 ProjectionMatrix = getProjectionMatrix();
 		glm::mat4 ViewMatrix = getViewMatrix();
-        
-        
         //******************************************************************************
         //******************************************************************************
         //******************************************************************************
         //******************************************************************************
+        //START OF BACK LEFT TIRE
+
+              glm::mat4 backLeftTireModelMatrix = glm::mat4(1.0);
+              glm::mat4 backLeftTireMVP = ProjectionMatrix * ViewMatrix * backLeftTireModelMatrix;
         
+              // Send our transformation to the currently bound shader,
+              // in the "MVP" uniform
+              glUniformMatrix4fv(backLeftTireMatrixID, 1, GL_FALSE, &backLeftTireMVP[0][0]);
         
+              // Bind our texture in Texture Unit 0
+              glActiveTexture(GL_TEXTURE0);
+              glBindTexture(GL_TEXTURE_2D, backLeftTireTexture);
+              // Set our "myTextureSampler" sampler to user Texture Unit 0
+              glUniform1i(backLeftTireTextureID, 0);
+        
+              glEnableVertexAttribArray(0);
+              glBindBuffer(GL_ARRAY_BUFFER, backLeftTireVertexbuffer);
+              glVertexAttribPointer(
+                  0,                  // attribute
+                  3,                  // size
+                  GL_FLOAT,           // type
+                  GL_FALSE,           // normalized?
+                  0,                  // stride
+                  (void*)0            // array buffer offset
+              );
+        
+              // 2nd attribute buffer : UVs
+              glEnableVertexAttribArray(1);
+              glBindBuffer(GL_ARRAY_BUFFER, backLeftTireUVBuffer);
+              glVertexAttribPointer(
+                  1,                                // attribute
+                  2,                                // size
+                  GL_FLOAT,                         // type
+                  GL_FALSE,                         // normalized?
+                  0,                                // stride
+                  (void*)0                          // array buffer offset
+              );
+        
+              // Draw the triangle !
+              glDrawArrays(GL_TRIANGLES, 0, backLeftTireVertices.size() );
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
+        //START OF BACK RIGHT TIRE
+        glm::mat4 backRightTireModelMatrix = glm::mat4(1.0);
+              glm::mat4 backRightTireMVP = ProjectionMatrix * ViewMatrix * backRightTireModelMatrix;
+        
+              // Send our transformation to the currently bound shader,
+              // in the "MVP" uniform
+              glUniformMatrix4fv(backRightTireMatrixID, 1, GL_FALSE, &backRightTireMVP[0][0]);
+        
+              // Bind our texture in Texture Unit 0
+              glActiveTexture(GL_TEXTURE0);
+              glBindTexture(GL_TEXTURE_2D, backRightTireTexture);
+
+              glUniform1i(backRightTireTextureID, 0);
+        
+              // 1rst attribute buffer : frontRightTireVertices
+              glEnableVertexAttribArray(0);
+              glBindBuffer(GL_ARRAY_BUFFER, backRightTireVertexbuffer);
+              glVertexAttribPointer(
+                  0,                  // attribute
+                  3,                  // size
+                  GL_FLOAT,           // type
+                  GL_FALSE,           // normalized?
+                  0,                  // stride
+                  (void*)0            // array buffer offset
+              );
+        
+              // 2nd attribute buffer : UVs
+              glEnableVertexAttribArray(1);
+              glBindBuffer(GL_ARRAY_BUFFER, backRightTireUVBuffer);
+              glVertexAttribPointer(
+                  1,                                // attribute
+                  2,                                // size
+                  GL_FLOAT,                         // type
+                  GL_FALSE,                         // normalized?
+                  0,                                // stride
+                  (void*)0                          // array buffer offset
+              );
+        
+              // Draw the triangle !
+              glDrawArrays(GL_TRIANGLES, 0, backRightTireVertices.size() );
+               //END OF BACK RIGHT TIRE
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
+
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
+        //START OF FRONT RIGHT TIRE
+        		glm::mat4 frontRightTireModelMatrix = glm::mat4(1.0);
+        		glm::mat4 frontRightTireMVP = ProjectionMatrix * ViewMatrix * frontRightTireModelMatrix;
+        
+        		// Send our transformation to the currently bound shader,
+        		// in the "MVP" uniform
+        		glUniformMatrix4fv(frontRightTireMatrixID, 1, GL_FALSE, &frontRightTireMVP[0][0]);
+        
+        		// Bind our texture in Texture Unit 0
+        		glActiveTexture(GL_TEXTURE0);
+        		glBindTexture(GL_TEXTURE_2D, frontRightTireTexture);
+        		// Set our "myTextureSampler" sampler to user Texture Unit 0
+        		glUniform1i(frontRightTireTextureID, 0);
+        
+        		// 1rst attribute buffer : vertices
+        		glEnableVertexAttribArray(0);
+        		glBindBuffer(GL_ARRAY_BUFFER, frontRightTireVertexbuffer);
+        		glVertexAttribPointer(
+        			0,                  // attribute
+        			3,                  // size
+        			GL_FLOAT,           // type
+        			GL_FALSE,           // normalized?
+        			0,                  // stride
+        			(void*)0            // array buffer offset
+        		);
+        
+        		// 2nd attribute buffer : UVs
+        		glEnableVertexAttribArray(1);
+        		glBindBuffer(GL_ARRAY_BUFFER, frontRightTireUVBuffer);
+        		glVertexAttribPointer(
+        			1,                                // attribute
+        			2,                                // size
+        			GL_FLOAT,                         // type
+        			GL_FALSE,                         // normalized?
+        			0,                                // stride
+        			(void*)0                          // array buffer offset
+        		);
+        
+        		// Draw the triangle !
+        		glDrawArrays(GL_TRIANGLES, 0, frontRightTireVertices.size() );
+        //END OF FRONT RIGHT TIRE
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
+
         
         
         
@@ -311,8 +537,12 @@ int main( void )
         
         		// Draw the triangle !
         glDrawArrays(GL_TRIANGLES, 0, frontLeftTireVertices.size() );
+        //END OF FRONT LEFT TIRE
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
 
-        
         
 //        //start of first object
 //		glm::mat4 ModelMatrix = glm::mat4(1.0);
