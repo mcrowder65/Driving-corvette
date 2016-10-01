@@ -542,53 +542,6 @@ int main( void )
         //******************************************************************************
         //******************************************************************************
         //******************************************************************************
-
-        
-//        //start of first object
-//		glm::mat4 ModelMatrix = glm::mat4(1.0);
-//		glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
-//
-//		// Send our transformation to the currently bound shader, 
-//		// in the "MVP" uniform
-//		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-//
-//		// Bind our texture in Texture Unit 0
-//		glActiveTexture(GL_TEXTURE0);
-//		glBindTexture(GL_TEXTURE_2D, Texture);
-//		// Set our "myTextureSampler" sampler to user Texture Unit 0
-//		glUniform1i(TextureID, 0);
-//
-//		// 1rst attribute buffer : vertices
-//		glEnableVertexAttribArray(0);
-//		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-//		glVertexAttribPointer(
-//			0,                  // attribute
-//			3,                  // size
-//			GL_FLOAT,           // type
-//			GL_FALSE,           // normalized?
-//			0,                  // stride
-//			(void*)0            // array buffer offset
-//		);
-//
-//		// 2nd attribute buffer : UVs
-//		glEnableVertexAttribArray(1);
-//		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-//		glVertexAttribPointer(
-//			1,                                // attribute
-//			2,                                // size
-//			GL_FLOAT,                         // type
-//			GL_FALSE,                         // normalized?
-//			0,                                // stride
-//			(void*)0                          // array buffer offset
-//		);
-//
-//		// Draw the triangle !
-//		glDrawArrays(GL_TRIANGLES, 0, vertices.size() );
-        //******************************************************************************
-        //******************************************************************************
-        //******************************************************************************
-        //******************************************************************************
-
         //START OF PARKING LOT*********************************
         glm::mat4 parkingLotModelMatrix = glm::mat4(1.0);
         glm::mat4 parkingLotMVP = ProjectionMatrix * ViewMatrix * parkingLotModelMatrix;
@@ -690,6 +643,8 @@ int main( void )
 	// Cleanup VBO and shader
 	glDeleteBuffers(1, &carVertexBuffer);
 	glDeleteBuffers(1, &carUVBuffer);
+
+
 	glDeleteProgram(programID);
 	glDeleteTextures(1, &carTextureID);
 	glDeleteVertexArrays(1, &VertexArrayID);
