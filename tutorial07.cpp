@@ -455,8 +455,7 @@ int main( void )
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
-        0, 0, 0, 1
-        //-2.5, 0.15, -7, 1
+        -2.5, 0.5, -7.5, 1
     };
     glm::mat4 bayMaxTranslation = glm::make_mat4(bayMaxTranslationArray);
     do {
