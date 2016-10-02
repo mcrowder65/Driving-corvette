@@ -374,7 +374,7 @@ int main( void )
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
-        0, 0.15, 0, 1
+        -2.7, 0.15, -8.1, 1
     };
     
     glm::mat4 backRightTireTranslation = glm::make_mat4(backRightTireTranslationArray);
