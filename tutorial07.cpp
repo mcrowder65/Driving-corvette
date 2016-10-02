@@ -5,11 +5,11 @@
 
 // Include GLEW
 #include <GL/glew.h>
-
+#include <glm/gtx/transform.hpp> // after <glm/glm.hpp>
 // Include GLFW
 #include <glfw3.h>
 GLFWwindow* window;
-
+#include <glm/gtc/type_ptr.hpp>
 // Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -115,32 +115,6 @@ int main( void )
 	// Create and compile our GLSL program from the shaders
 	GLuint programID = LoadShaders( "TransformVertexShader.vertexshader", "TextureFragmentShader.fragmentshader" );
 
-//	// Get a handle for our "MVP" uniform
-//	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
-//
-//	// Load the texture
-//    GLuint Texture = loadPNG("ParkingLot.png");
-//	// Get a handle for our "myTextureSampler" uniform
-//	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
-//
-//	// Read our .obj file
-//	std::vector<glm::vec3> vertices;
-//	std::vector<glm::vec2> uvs;
-//	std::vector<glm::vec3> normals; // Won't be used at the moment.
-//	bool res = loadOBJ("ParkingLot.obj", vertices, uvs, normals);
-//    
-//    
-//	// Load it into a VBO
-//    
-//	GLuint vertexbuffer;
-//	glGenBuffers(1, &vertexbuffer);
-//	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-//	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
-//
-//	GLuint uvbuffer;
-//	glGenBuffers(1, &uvbuffer);
-//	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-//	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
     
         //******************************************************************************
     //******************************************************************************
@@ -318,6 +292,8 @@ int main( void )
       GLuint backLeftTireTextureID  = glGetUniformLocation(programID, "myTextureSampler");
     
       // Read our .obj file
+    
+    
       std::vector<glm::vec3> backLeftTireVertices;
       std::vector<glm::vec2> backLeftTireUVs;
       std::vector<glm::vec3> backLeftTireNormals; // Won't be used at the moment.
@@ -335,7 +311,7 @@ int main( void )
       glGenBuffers(1, &backLeftTireUVBuffer);
       glBindBuffer(GL_ARRAY_BUFFER, backLeftTireUVBuffer);
       glBufferData(GL_ARRAY_BUFFER, backLeftTireUVs.size() * sizeof(glm::vec2), &backLeftTireUVs[0], GL_STATIC_DRAW);
-    do{
+    do {
 
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -354,21 +330,45 @@ int main( void )
         //START OF BACK LEFT TIRE
 
               glm::mat4 backLeftTireModelMatrix = glm::mat4(1.0);
-              glm::mat4 backLeftTireMVP = ProjectionMatrix * ViewMatrix * backLeftTireModelMatrix;
         
-              // Send our transformation to the currently bound shader,
-              // in the "MVP" uniform
-              glUniformMatrix4fv(backLeftTireMatrixID, 1, GL_FALSE, &backLeftTireMVP[0][0]);
+        float tireScaleArray[16] = {
+            .1, 0, 0, 0,
+            0, .1, 0, 0,
+            0, 0, .1, 0,
+            0, 0, 0,   1
+        };
+        int theta = 95;
+        float rotationArray[16] = {
+            cos(theta),       0,        sin(theta), 0,
+            0, 1, 0, 0,
+            -sin(theta), 0  ,  cos(theta), 0,
+            0,       0,        0, 1
+        };
+        float translationArray[16] = {
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            5, 0, 0, 1
+        };
+        glm::mat4 tireScale = glm::make_mat4(tireScaleArray);
+        glm::mat4 tireRotation = glm::make_mat4(rotationArray);
+        glm::mat4 tireTranslation = glm::make_mat4(translationArray);
+
+        backLeftTireModelMatrix =tireTranslation * tireRotation * tireScale;
+//        backLeftTireModelMatrix = glm::translate(backLeftTireModelMatrix, glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::mat4 backLeftTireMVP = ProjectionMatrix *  ViewMatrix * backLeftTireModelMatrix ;
+        // in the "MVP" uniform
+        glUniformMatrix4fv(backLeftTireMatrixID, 1, GL_FALSE, &backLeftTireMVP[0][0]);
         
-              // Bind our texture in Texture Unit 0
-              glActiveTexture(GL_TEXTURE0);
-              glBindTexture(GL_TEXTURE_2D, backLeftTireTexture);
-              // Set our "myTextureSampler" sampler to user Texture Unit 0
-              glUniform1i(backLeftTireTextureID, 0);
-        
-              glEnableVertexAttribArray(0);
-              glBindBuffer(GL_ARRAY_BUFFER, backLeftTireVertexbuffer);
-              glVertexAttribPointer(
+        // Bind our texture in Texture Unit 0
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, backLeftTireTexture);
+        // Set our "myTextureSampler" sampler to user Texture Unit 0
+        glUniform1i(backLeftTireTextureID, 0);
+       
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, backLeftTireVertexbuffer);
+        glVertexAttribPointer(
                   0,                  // attribute
                   3,                  // size
                   GL_FLOAT,           // type
@@ -377,10 +377,10 @@ int main( void )
                   (void*)0            // array buffer offset
               );
         
-              // 2nd attribute buffer : UVs
-              glEnableVertexAttribArray(1);
-              glBindBuffer(GL_ARRAY_BUFFER, backLeftTireUVBuffer);
-              glVertexAttribPointer(
+         // 2nd attribute buffer : UVs
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, backLeftTireUVBuffer);
+        glVertexAttribPointer(
                   1,                                // attribute
                   2,                                // size
                   GL_FLOAT,                         // type
@@ -388,16 +388,16 @@ int main( void )
                   0,                                // stride
                   (void*)0                          // array buffer offset
               );
-        
-              // Draw the triangle !
-              glDrawArrays(GL_TRIANGLES, 0, backLeftTireVertices.size() );
+
+            // Draw the triangle !
+        glDrawArrays(GL_TRIANGLES, 0, backLeftTireVertices.size() );
         //******************************************************************************
         //******************************************************************************
         //******************************************************************************
         //******************************************************************************
         //START OF BACK RIGHT TIRE
         glm::mat4 backRightTireModelMatrix = glm::mat4(1.0);
-              glm::mat4 backRightTireMVP = ProjectionMatrix * ViewMatrix * backRightTireModelMatrix;
+              glm::mat4 backRightTireMVP = ProjectionMatrix * ViewMatrix * tireScale * backRightTireModelMatrix;
         
               // Send our transformation to the currently bound shader,
               // in the "MVP" uniform
@@ -434,17 +434,17 @@ int main( void )
               );
         
               // Draw the triangle !
-              glDrawArrays(GL_TRIANGLES, 0, backRightTireVertices.size() );
-               //END OF BACK RIGHT TIRE
-        //******************************************************************************
-        //******************************************************************************
-        //******************************************************************************
-        //******************************************************************************
-
-        //******************************************************************************
-        //******************************************************************************
-        //******************************************************************************
-        //******************************************************************************
+//              glDrawArrays(GL_TRIANGLES, 0, backRightTireVertices.size() );
+//               //END OF BACK RIGHT TIRE
+//        //******************************************************************************
+//        //******************************************************************************
+//        //******************************************************************************
+//        //******************************************************************************
+//
+//        //******************************************************************************
+//        //******************************************************************************
+//        //******************************************************************************
+//        //******************************************************************************
         //START OF FRONT RIGHT TIRE
         		glm::mat4 frontRightTireModelMatrix = glm::mat4(1.0);
         		glm::mat4 frontRightTireMVP = ProjectionMatrix * ViewMatrix * frontRightTireModelMatrix;
@@ -484,22 +484,22 @@ int main( void )
         		);
         
         		// Draw the triangle !
-        		glDrawArrays(GL_TRIANGLES, 0, frontRightTireVertices.size() );
-        //END OF FRONT RIGHT TIRE
-        //******************************************************************************
-        //******************************************************************************
-        //******************************************************************************
-        //******************************************************************************
-
-        
-        
-        
-        
-        
-        
+//        		glDrawArrays(GL_TRIANGLES, 0, frontRightTireVertices.size() );
+//        //END OF FRONT RIGHT TIRE
+//        //******************************************************************************
+//        //******************************************************************************
+//        //******************************************************************************
+//        //******************************************************************************
+//
+//        
+//        
+//        
+//        
+//        
+//        
         //START OF FRONT LEFT TIRE
         glm::mat4 frontLeftTireModelMatrix = glm::mat4(1.0);
-        glm::mat4 frontLeftTireMVP = ProjectionMatrix * ViewMatrix * frontLeftTireModelMatrix;
+        glm::mat4 frontLeftTireMVP = ProjectionMatrix * ViewMatrix * tireScale* frontLeftTireModelMatrix;
         
         		// Send our transformation to the currently bound shader,
         		// in the "MVP" uniform
@@ -537,7 +537,7 @@ int main( void )
         
         		// Draw the triangle !
         glDrawArrays(GL_TRIANGLES, 0, frontLeftTireVertices.size() );
-        //END OF FRONT LEFT TIRE
+//        END OF FRONT LEFT TIRE
         //******************************************************************************
         //******************************************************************************
         //******************************************************************************
@@ -628,7 +628,7 @@ int main( void )
         		);
         
         // Draw the triangle !
-        glDrawArrays(GL_TRIANGLES, 0, carVertices.size() );
+       // glDrawArrays(GL_TRIANGLES, 0, carVertices.size() );
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 
@@ -637,8 +637,7 @@ int main( void )
 		glfwPollEvents();
 
 	} // Check if the ESC key was pressed or the window was closed
-	while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-		   glfwWindowShouldClose(window) == 0 );
+	while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS  && glfwWindowShouldClose(window) == 0 );
 
 	// Cleanup VBO and shader
 	glDeleteBuffers(1, &carVertexBuffer);
