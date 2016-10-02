@@ -298,11 +298,24 @@ int main( void )
       std::vector<glm::vec2> backLeftTireUVs;
       std::vector<glm::vec3> backLeftTireNormals; // Won't be used at the moment.
       bool backLeftTireRes = loadOBJ("tire.obj", backLeftTireVertices, backLeftTireUVs, backLeftTireNormals);
+    GLuint backLeftTireVertexbuffer;
+    glGenBuffers(1, &backLeftTireVertexbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, backLeftTireVertexbuffer);
+    glBufferData(GL_ARRAY_BUFFER, backLeftTireVertices.size() * sizeof(glm::vec3), &backLeftTireVertices[0], GL_STATIC_DRAW);
     
+    GLuint backLeftTireUVBuffer;
+    glGenBuffers(1, &backLeftTireUVBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, backLeftTireUVBuffer);
+    glBufferData(GL_ARRAY_BUFFER, backLeftTireUVs.size() * sizeof(glm::vec2), &backLeftTireUVs[0], GL_STATIC_DRAW);
+    //******************************************************************************
+    //******************************************************************************
+    //******************************************************************************
+    //******************************************************************************
+    //start of baymax
     GLuint bayMaxMatrixID = glGetUniformLocation(programID, "MVP");
     
     // Load the texture
-    GLuint bayMaxTexture = loadPNG("car.png");
+    GLuint bayMaxTexture = loadPNG("tire.png");
     // Get a handle for our "myTextureSampler" uniform
     GLuint bayMaxTextureID  = glGetUniformLocation(programID, "myTextureSampler");
     
@@ -324,6 +337,11 @@ int main( void )
     glBindBuffer(GL_ARRAY_BUFFER, bayMaxUVBuffer);
     glBufferData(GL_ARRAY_BUFFER, bayMaxUVS.size() * sizeof(glm::vec2), &bayMaxUVS[0], GL_STATIC_DRAW);
     
+    //END OF BAYMAX
+    //******************************************************************************
+    //******************************************************************************
+    //******************************************************************************
+    //******************************************************************************
     float carScaleArray[16] = {
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -348,15 +366,7 @@ int main( void )
     glm::mat4 carTranslation = glm::make_mat4(carTranslationArray);
       // Load it into a VBO
     
-      GLuint backLeftTireVertexbuffer;
-      glGenBuffers(1, &backLeftTireVertexbuffer);
-      glBindBuffer(GL_ARRAY_BUFFER, backLeftTireVertexbuffer);
-      glBufferData(GL_ARRAY_BUFFER, backLeftTireVertices.size() * sizeof(glm::vec3), &backLeftTireVertices[0], GL_STATIC_DRAW);
     
-      GLuint backLeftTireUVBuffer;
-      glGenBuffers(1, &backLeftTireUVBuffer);
-      glBindBuffer(GL_ARRAY_BUFFER, backLeftTireUVBuffer);
-      glBufferData(GL_ARRAY_BUFFER, backLeftTireUVs.size() * sizeof(glm::vec2), &backLeftTireUVs[0], GL_STATIC_DRAW);
       float tireScaleArray[16] = {
         .25, 0, 0, 0,
         0, .25, 0, 0,
@@ -439,9 +449,9 @@ int main( void )
 
     };
     float bayMaxScaleArray[16] = {
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
+        0.1, 0, 0, 0,
+        0, 0.1, 0, 0,
+        0, 0, 0.1, 0,
         0, 0, 0, 1
     };
     glm::mat4 bayMaxScale = glm::make_mat4(bayMaxScaleArray);
@@ -463,9 +473,9 @@ int main( void )
         //******************************************************************************
         //******************************************************************************
         
-        //START OF FRONT LEFT TIRE
+        //START OF BAYMAX
         glm::mat4 bayMaxModelMatrix = glm::mat4(1.0);
-        bayMaxModelMatrix = bayMaxTranslation * bayMaxRotation * bayMaxScale;
+         bayMaxModelMatrix = bayMaxTranslation * bayMaxRotation * bayMaxScale;
         glm::mat4 bayMaxMVP = ProjectionMatrix * ViewMatrix * bayMaxModelMatrix;
         
         // Send our transformation to the currently bound shader,
@@ -474,7 +484,7 @@ int main( void )
         
         // Bind our texture in Texture Unit 0
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, frontLeftTireTexture);
+        glBindTexture(GL_TEXTURE_2D, bayMaxTexture);
         // Set our "myTextureSampler" sampler to user Texture Unit 0
         glUniform1i(bayMaxTextureID, 0);
         
@@ -504,7 +514,7 @@ int main( void )
         
         // Draw the triangle !
         glDrawArrays(GL_TRIANGLES, 0, bayMaxVertices.size() );
-        //        END OF FRONT LEFT TIRE
+        //        END OF BAYMAX
         //******************************************************************************
         //******************************************************************************
         //******************************************************************************
