@@ -395,13 +395,7 @@ int main( void )
     glm::mat4 backLeftTireTranslation = glm::make_mat4(backLeftTireTranslationArray);
     
 
-    float bayMaxTranslationArray[16] = {
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        -2.22, 0.15, -6.9, 1
-    };
-    glm::mat4 bayMaxTranslation = glm::make_mat4(bayMaxTranslationArray);
+    
     
     float frontLeftTireTranslationArray[16] = {
         1, 0, 0, 0,
@@ -440,7 +434,7 @@ int main( void )
     };
     
     glm::mat4 rightTiresRotation = glm::make_mat4(rightTiresRotationArray);
-    float bayMaxTheta = 90;
+    float bayMaxTheta = 0.5;
     float bayMaxRotationArray[16] = {
         cos(bayMaxTheta),       0,        sin(bayMaxTheta), 0,
         0, 1, 0, 0,
@@ -449,13 +443,22 @@ int main( void )
 
     };
     float bayMaxScaleArray[16] = {
-        0.1, 0, 0, 0,
-        0, 0.1, 0, 0,
-        0, 0, 0.1, 0,
+        0.05, 0, 0, 0,
+        0, 0.05, 0, 0,
+        0, 0, 0.05, 0,
         0, 0, 0, 1
     };
     glm::mat4 bayMaxScale = glm::make_mat4(bayMaxScaleArray);
     glm::mat4 bayMaxRotation = glm::make_mat4(bayMaxRotationArray);
+    
+    float bayMaxTranslationArray[16] = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+        //-2.5, 0.15, -7, 1
+    };
+    glm::mat4 bayMaxTranslation = glm::make_mat4(bayMaxTranslationArray);
     do {
 
 		// Clear the screen
