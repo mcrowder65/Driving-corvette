@@ -315,7 +315,7 @@ int main( void )
     GLuint bayMaxMatrixID = glGetUniformLocation(programID, "MVP");
     
     // Load the texture
-    GLuint bayMaxTexture = loadPNG("tire.png");
+    GLuint bayMaxTexture = loadPNG("Solid_white.png");
     // Get a handle for our "myTextureSampler" uniform
     GLuint bayMaxTextureID  = glGetUniformLocation(programID, "myTextureSampler");
     
