@@ -464,7 +464,14 @@ int main( void )
     glm::mat4 bayMaxTranslation = glm::make_mat4(bayMaxTranslationArray);
     float frontLeftTireTheta = 2.11;
     float frontRightTireTheta = 5.28;
-
+    float FRONT_LEFT_TIRE_MAX = 2.91;
+    float FRONT_LEFT_TIRE_MIN = 1.31;
+    float FRONT_RIGHT_TIRE_MAX = 6.08;
+    float FRONT_RIGHT_TIRE_MIN = 4.48;
+    //left joystick = wasd
+    //right joystick = arrow keys
+    //move tires right = j
+    //move tires left = k
     do {
 
 		// Clear the screen
@@ -502,14 +509,14 @@ int main( void )
         glm::mat4 frontRightTireRotation = glm::make_mat4(frontRightTireRotationArray);
         // Strafe left
         
-        if (glfwGetKey( window, GLFW_KEY_LEFT ) == GLFW_PRESS) {
-            if(frontLeftTireTheta <= 2.91 && frontRightTireTheta <= 6.08) {
+        if (glfwGetKey( window, GLFW_KEY_J ) == GLFW_PRESS) {
+            if(frontLeftTireTheta <= FRONT_LEFT_TIRE_MAX && frontRightTireTheta <= FRONT_RIGHT_TIRE_MAX) {
                 frontLeftTireTheta += .2;
                 frontRightTireTheta +=.2;
             }
             
-        } else if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-            if(frontLeftTireTheta >= 1.31 && frontRightTireTheta >= 4.48) {
+        } else if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+            if(frontLeftTireTheta >= FRONT_LEFT_TIRE_MIN && frontRightTireTheta >= FRONT_RIGHT_TIRE_MIN) {
                 frontLeftTireTheta -= .2;
                 frontRightTireTheta -=.2;
             }
