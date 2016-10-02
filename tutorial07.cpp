@@ -443,9 +443,9 @@ int main( void )
 
     };
     float bayMaxScaleArray[16] = {
-        0.05, 0, 0, 0,
-        0, 0.05, 0, 0,
-        0, 0, 0.05, 0,
+        0.04, 0, 0, 0,
+        0, 0.04, 0, 0,
+        0, 0, 0.04, 0,
         0, 0, 0, 1
     };
     glm::mat4 bayMaxScale = glm::make_mat4(bayMaxScaleArray);
