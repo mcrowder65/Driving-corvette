@@ -16,10 +16,10 @@ GLFWwindow* window;
 using namespace glm;
 #include <string>
 #include <iostream>
-#include <common/shader.hpp>
-#include <common/texture.hpp>
-#include <common/controls.hpp>
-#include <common/objloader.hpp>
+#include "shader.hpp"
+#include "texture.hpp"
+#include "controls.hpp"
+#include "objloader.hpp"
 using namespace std;
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
