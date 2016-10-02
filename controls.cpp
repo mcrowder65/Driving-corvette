@@ -39,7 +39,6 @@ bool initialLookAtBool = true;
 
 void computeMatricesFromInputs(){
     
-    cout << "horizontalAngle: " << horizontalAngle << " verticalAngle: " << verticalAngle << endl;
     // glfwGetTime is called only once, the first time this function is called
     static double lastTime = glfwGetTime();
     
@@ -48,12 +47,22 @@ void computeMatricesFromInputs(){
     float deltaTime = float(currentTime - lastTime);
     
     // Get mouse position
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-    
+    double xpos = 512, ypos = 384;
+    //	glfwGetCursorPos(window, &xpos, &ypos);
     // Reset mouse position for next frame
     glfwSetCursorPos(window, 1024/2, 768/2);
-    
+    if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        ypos += 2;
+    }
+    if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        ypos -=2;
+    }
+    if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        xpos -=2;
+    }
+    if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        xpos +=2;
+    }
     // Compute new orientation
     horizontalAngle += mouseSpeed * float(1024/2 - xpos );
     verticalAngle   += mouseSpeed * float( 768/2 - ypos );
