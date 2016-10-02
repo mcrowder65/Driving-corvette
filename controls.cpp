@@ -35,8 +35,6 @@ float initialFoV = 45.0f;
 float speed = 3.0f; // 3 units / second
 float mouseSpeed = 0.005f;
 
-bool initialLookAtBool = true;
-
 void computeMatricesFromInputs(){
     
     // glfwGetTime is called only once, the first time this function is called
@@ -48,9 +46,6 @@ void computeMatricesFromInputs(){
     
     // Get mouse position
     double xpos = 512, ypos = 384;
-    //	glfwGetCursorPos(window, &xpos, &ypos);
-    // Reset mouse position for next frame
-    glfwSetCursorPos(window, 1024/2, 768/2);
     if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
         ypos += 2;
     }
@@ -84,31 +79,23 @@ void computeMatricesFromInputs(){
     // Up vector
     glm::vec3 up = glm::cross( right, direction );
     
-    // Move forward
-    //glfwGetKey( window, GLFW_KEY_UP ) == GLFW_PRESS
+    // Move backward
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         position += direction * deltaTime * speed;
     }
-    // Move backward
-    //glfwGetKey( window, GLFW_KEY_DOWN ) == GLFW_PRESS
+    // Move forward
     if ( glfwGetKey( window, GLFW_KEY_W ) == GLFW_PRESS){
         position -= direction * deltaTime * speed;
     }
-    // Strafe right
-    //glfwGetKey( window, GLFW_KEY_RIGHT ) == GLFW_PRESS
+    // Strafe left
     if ( glfwGetKey( window, GLFW_KEY_A ) == GLFW_PRESS){
         position += right * deltaTime * speed;
     }
-    // Strafe left
-    //glfwGetKey( window, GLFW_KEY_LEFT ) == GLFW_PRESS
+    // Strafe right
     if ( glfwGetKey( window, GLFW_KEY_D ) == GLFW_PRESS){
         position -= right * deltaTime * speed;
     }
     
-    float FoV = initialFoV;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
-    
-    // Projection matrix : 45 Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-    //ProjectionMatrix = glm::perspective(FoV, 4.0f / 3.0f, 0.1f, 100.0f);
     float xScale = 3;
     float yScale = 4;
     float near = 0.1f;
@@ -125,14 +112,8 @@ void computeMatricesFromInputs(){
     };
     
     ProjectionMatrix = glm::make_mat4(perspectiveMatrixArray);
-    // Camera matrix
-    //	ViewMatrix       = glm::lookAt(
-    //								position,           // Camera is here
-    //								target, // and looks here : at the same position, plus "direction"
-    //								up                  // Head is up (set to 0,-1,0 to look upside-down)
-    //						   );
-    glm::vec3 zaxis = glm::normalize(initialLookAtBool == true ? initialLookAt - position : position + direction - position);
-    initialLookAtBool = false;
+    
+    glm::vec3 zaxis = glm::normalize(position + direction - position);
     glm::vec3 xaxis = glm::normalize(glm::cross(up,zaxis));
     glm::vec3 yaxis = glm::cross(zaxis, xaxis);
     float viewMatrixArray[16] = {
