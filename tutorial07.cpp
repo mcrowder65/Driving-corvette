@@ -116,7 +116,7 @@ int main( void )
 	GLuint programID = LoadShaders( "TransformVertexShader.vertexshader", "TextureFragmentShader.fragmentshader" );
 
     
-        //******************************************************************************
+    //******************************************************************************
     //******************************************************************************
     //******************************************************************************
     //******************************************************************************
@@ -375,14 +375,16 @@ int main( void )
       };
     glm::mat4 tireScale = glm::make_mat4(tireScaleArray);
     float leftTiresTheta = 2.11;
-    float leftTiresRotationArray[16] = {
+        float backLeftTireRotationArray[16] = {
         cos(leftTiresTheta),       0,        sin(leftTiresTheta), 0,
         0, 1, 0, 0,
         -sin(leftTiresTheta), 0  ,  cos(leftTiresTheta), 0,
         0,       0,        0, 1
     };
     
-    glm::mat4 leftTiresRotation = glm::make_mat4(leftTiresRotationArray);
+    
+
+    glm::mat4 backLeftTireRotation = glm::make_mat4(backLeftTireRotationArray);
     
     
     float backLeftTireTranslationArray[16] = {
@@ -425,15 +427,17 @@ int main( void )
     
     glm::mat4 frontRightTireTranslation = glm::make_mat4(frontRightTireTranslationArray);
     
-    float rightTiresTheta = 5.28;
-    float rightTiresRotationArray[16] = {
-        cos(rightTiresTheta),       0,        sin(rightTiresTheta), 0,
+    float backrightTiresTheta = 5.28;
+    
+    float backRightTireRotationArray[16] = {
+        cos(backrightTiresTheta),       0,        sin(backrightTiresTheta), 0,
         0, 1, 0, 0,
-        -sin(rightTiresTheta), 0  ,  cos(rightTiresTheta), 0,
+        -sin(backrightTiresTheta), 0  ,  cos(backrightTiresTheta), 0,
         0,       0,        0, 1
     };
     
-    glm::mat4 rightTiresRotation = glm::make_mat4(rightTiresRotationArray);
+    glm::mat4 backRightTireRotation = glm::make_mat4(backRightTireRotationArray);
+    
     float bayMaxTheta = 0.5;
     float bayMaxRotationArray[16] = {
         cos(bayMaxTheta),       0,        sin(bayMaxTheta), 0,
@@ -458,6 +462,9 @@ int main( void )
         -2.5, 0.5, -7.5, 1
     };
     glm::mat4 bayMaxTranslation = glm::make_mat4(bayMaxTranslationArray);
+    float frontLeftTireTheta = 2.11;
+    float frontRightTireTheta = 5.28;
+
     do {
 
 		// Clear the screen
@@ -470,6 +477,45 @@ int main( void )
 		computeMatricesFromInputs();
 		glm::mat4 ProjectionMatrix = getProjectionMatrix();
 		glm::mat4 ViewMatrix = getViewMatrix();
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
+        
+       
+        
+        float frontLeftTireRotationArray[16] = {
+            cos(frontLeftTireTheta),       0,        sin(frontLeftTireTheta), 0,
+            0, 1, 0, 0,
+            -sin(frontLeftTireTheta), 0  ,  cos(frontLeftTireTheta), 0,
+            0,       0,        0, 1
+        };
+        glm::mat4 frontLeftTireRotation = glm::make_mat4(frontLeftTireRotationArray);
+        
+        
+                float frontRightTireRotationArray[16] = {
+            cos(frontRightTireTheta),       0,        sin(frontRightTireTheta), 0,
+            0, 1, 0, 0,
+            -sin(frontRightTireTheta), 0  ,  cos(frontRightTireTheta), 0,
+            0,       0,        0, 1
+        };
+        glm::mat4 frontRightTireRotation = glm::make_mat4(frontRightTireRotationArray);
+        // Strafe left
+        
+        if (glfwGetKey( window, GLFW_KEY_LEFT ) == GLFW_PRESS) {
+            if(frontLeftTireTheta <= 2.91 && frontRightTireTheta <= 6.08) {
+                frontLeftTireTheta += .2;
+                frontRightTireTheta +=.2;
+            }
+            
+        } else if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+            if(frontLeftTireTheta >= 1.31 && frontRightTireTheta >= 4.48) {
+                frontLeftTireTheta -= .2;
+                frontRightTireTheta -=.2;
+            }
+            
+        }
+        
         //******************************************************************************
         //******************************************************************************
         //******************************************************************************
@@ -524,7 +570,7 @@ int main( void )
         
         //START OF FRONT LEFT TIRE
         glm::mat4 frontLeftTireModelMatrix = glm::mat4(1.0);
-        frontLeftTireModelMatrix = frontLeftTireTranslation * leftTiresRotation * tireScale;
+        frontLeftTireModelMatrix = frontLeftTireTranslation * frontLeftTireRotation * tireScale;
         glm::mat4 frontLeftTireMVP = ProjectionMatrix * ViewMatrix * frontLeftTireModelMatrix;
         
         // Send our transformation to the currently bound shader,
@@ -574,7 +620,7 @@ int main( void )
         
         
         
-        backLeftTireModelMatrix = backLeftTireTranslation * leftTiresRotation * tireScale;
+        backLeftTireModelMatrix = backLeftTireTranslation * backLeftTireRotation * tireScale;
         glm::mat4 backLeftTireMVP = ProjectionMatrix *  ViewMatrix * backLeftTireModelMatrix ;
         // in the "MVP" uniform
         glUniformMatrix4fv(backLeftTireMatrixID, 1, GL_FALSE, &backLeftTireMVP[0][0]);
@@ -682,7 +728,7 @@ int main( void )
         //******************************************************************************
         //START OF BACK RIGHT TIRE
         glm::mat4 backRightTireModelMatrix = glm::mat4(1.0);
-        backRightTireModelMatrix = backRightTireTranslation * rightTiresRotation * tireScale;
+        backRightTireModelMatrix = backRightTireTranslation * backRightTireRotation * tireScale;
               glm::mat4 backRightTireMVP = ProjectionMatrix * ViewMatrix * backRightTireModelMatrix;
         
               // Send our transformation to the currently bound shader,
@@ -733,7 +779,7 @@ int main( void )
 //        //******************************************************************************
         //START OF FRONT RIGHT TIRE
         		glm::mat4 frontRightTireModelMatrix = glm::mat4(1.0);
-        frontRightTireModelMatrix = frontRightTireTranslation * rightTiresRotation * tireScale;
+        frontRightTireModelMatrix = frontRightTireTranslation * frontRightTireRotation * tireScale;
         		glm::mat4 frontRightTireMVP = ProjectionMatrix * ViewMatrix * frontRightTireModelMatrix;
         
         		// Send our transformation to the currently bound shader,
