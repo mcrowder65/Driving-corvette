@@ -368,6 +368,36 @@ int main( void )
     };
     
     glm::mat4 frontLeftTireTranslation = glm::make_mat4(frontLeftTireTranslationArray);
+    
+    
+    float backRightTireTranslationArray[16] = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0.15, 0, 1
+    };
+    
+    glm::mat4 backRightTireTranslation = glm::make_mat4(backRightTireTranslationArray);
+    
+    float frontRightTireTranslationArray[16] = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        -1.85, 0.15, -7.55, 1
+    };
+    
+    glm::mat4 frontRightTireTranslation = glm::make_mat4(frontRightTireTranslationArray);
+    
+    float rightTiresTheta = 5.28;
+    float rightTiresRotationArray[16] = {
+        cos(rightTiresTheta),       0,        sin(rightTiresTheta), 0,
+        0, 1, 0, 0,
+        -sin(rightTiresTheta), 0  ,  cos(rightTiresTheta), 0,
+        0,       0,        0, 1
+    };
+    
+    glm::mat4 rightTiresRotation = glm::make_mat4(rightTiresRotationArray);
+
     do {
 
 		// Clear the screen
@@ -545,7 +575,8 @@ int main( void )
         //******************************************************************************
         //START OF BACK RIGHT TIRE
         glm::mat4 backRightTireModelMatrix = glm::mat4(1.0);
-              glm::mat4 backRightTireMVP = ProjectionMatrix * ViewMatrix * tireScale * backRightTireModelMatrix;
+        backRightTireModelMatrix = backRightTireTranslation * rightTiresRotation * tireScale;
+              glm::mat4 backRightTireMVP = ProjectionMatrix * ViewMatrix * backRightTireModelMatrix;
         
               // Send our transformation to the currently bound shader,
               // in the "MVP" uniform
@@ -595,6 +626,7 @@ int main( void )
 //        //******************************************************************************
         //START OF FRONT RIGHT TIRE
         		glm::mat4 frontRightTireModelMatrix = glm::mat4(1.0);
+        frontRightTireModelMatrix = frontRightTireTranslation * rightTiresRotation * tireScale;
         		glm::mat4 frontRightTireMVP = ProjectionMatrix * ViewMatrix * frontRightTireModelMatrix;
         
         		// Send our transformation to the currently bound shader,
@@ -632,7 +664,7 @@ int main( void )
         		);
         
         		// Draw the triangle !
-//        		glDrawArrays(GL_TRIANGLES, 0, frontRightTireVertices.size() );
+        		glDrawArrays(GL_TRIANGLES, 0, frontRightTireVertices.size() );
 //        //END OF FRONT RIGHT TIRE
         
         //******************************************************************************
