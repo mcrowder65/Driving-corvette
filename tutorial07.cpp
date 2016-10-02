@@ -327,6 +327,73 @@ int main( void )
         //******************************************************************************
         //******************************************************************************
         //******************************************************************************
+        //CAR**********************************************
+        glm::mat4 carModelMatrix = glm::mat4(1.0);
+        float carScaleArray[16] = {
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        };
+        float carTheta = 2.1;
+        float carRotationArray[16] = {
+            cos(carTheta),       0,        sin(carTheta), 0,
+            0, 1, 0, 0,
+            -sin(carTheta), 0  ,  cos(carTheta), 0,
+            0,       0,        0, 1
+        };
+        float carTranslationArray[16] = {
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            -2.5, 0, -7.5, 1
+        };
+        glm::mat4 carScale = glm::make_mat4(carScaleArray);
+        glm::mat4 carRotation = glm::make_mat4(carRotationArray);
+        glm::mat4 carTranslation = glm::make_mat4(carTranslationArray);
+        carModelMatrix = carTranslation * carRotation * carScale;
+        glm::mat4 carMVP = ProjectionMatrix * ViewMatrix * carModelMatrix;
+        
+        // Send our transformation to the currently bound shader,
+        // in the "MVP" uniform
+        glUniformMatrix4fv(carMatrixID, 1, GL_FALSE, &carMVP[0][0]);
+        
+        // Bind our texture in Texture Unit 0
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, carTexture);
+        // Set our "myTextureSampler" sampler to user Texture Unit 0
+        glUniform1i(carTextureID, 0);
+        
+        // 1rst attribute buffer : vertices
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, carVertexBuffer);
+        glVertexAttribPointer(
+                              0,                  // attribute
+                              3,                  // size
+                              GL_FLOAT,           // type
+                              GL_FALSE,           // normalized?
+                              0,                  // stride
+                              (void*)0            // array buffer offset
+                              );
+        
+        // 2nd attribute buffer : UVs
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, carUVBuffer);
+        glVertexAttribPointer(
+                              1,                                // attribute
+                              2,                                // size
+                              GL_FLOAT,                         // type
+                              GL_FALSE,                         // normalized?
+                              0,                                // stride
+                              (void*)0                          // array buffer offset
+                              );
+        
+        // Draw the triangle !
+         glDrawArrays(GL_TRIANGLES, 0, carVertices.size() );
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
+        //******************************************************************************
         //START OF BACK LEFT TIRE
 
               glm::mat4 backLeftTireModelMatrix = glm::mat4(1.0);
@@ -348,14 +415,14 @@ int main( void )
             1, 0, 0, 0,
             0, 1, 0, 0,
             0, 0, 1, 0,
-            5, 0, 0, 1
+            0, 0.053, 0, 1
         };
         glm::mat4 tireScale = glm::make_mat4(tireScaleArray);
         glm::mat4 tireRotation = glm::make_mat4(rotationArray);
         glm::mat4 tireTranslation = glm::make_mat4(translationArray);
 
-        backLeftTireModelMatrix =tireTranslation * tireRotation * tireScale;
-//        backLeftTireModelMatrix = glm::translate(backLeftTireModelMatrix, glm::vec3(1.0f, 0.0f, 0.0f));
+       // backLeftTireModelMatrix =tireTranslation * tireRotation * tireScale;
+//        backLeftTireModelMatrix = glm::translate(backLeftTireModelMatrix, glm::vec3(5.0f, 5.0f, 5.0f));
         glm::mat4 backLeftTireMVP = ProjectionMatrix *  ViewMatrix * backLeftTireModelMatrix ;
         // in the "MVP" uniform
         glUniformMatrix4fv(backLeftTireMatrixID, 1, GL_FALSE, &backLeftTireMVP[0][0]);
@@ -536,7 +603,7 @@ int main( void )
         		);
         
         		// Draw the triangle !
-        glDrawArrays(GL_TRIANGLES, 0, frontLeftTireVertices.size() );
+//        glDrawArrays(GL_TRIANGLES, 0, frontLeftTireVertices.size() );
 //        END OF FRONT LEFT TIRE
         //******************************************************************************
         //******************************************************************************
@@ -588,47 +655,7 @@ int main( void )
         //******************************************************************************
         //******************************************************************************
 
-        
-        //CAR**********************************************
-        glm::mat4 carModelMatrix = glm::mat4(1.0);
-        glm::mat4 carMVP = ProjectionMatrix * ViewMatrix * carModelMatrix;
-        
-        // Send our transformation to the currently bound shader,
-        // in the "MVP" uniform
-        glUniformMatrix4fv(carMatrixID, 1, GL_FALSE, &carMVP[0][0]);
-        
-        // Bind our texture in Texture Unit 0
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, carTexture);
-        // Set our "myTextureSampler" sampler to user Texture Unit 0
-        glUniform1i(carTextureID, 0);
-        
-        // 1rst attribute buffer : vertices
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, carVertexBuffer);
-        glVertexAttribPointer(
-        			0,                  // attribute
-        			3,                  // size
-        			GL_FLOAT,           // type
-        			GL_FALSE,           // normalized?
-        			0,                  // stride
-        			(void*)0            // array buffer offset
-        		);
-        
-        		// 2nd attribute buffer : UVs
-        		glEnableVertexAttribArray(1);
-        		glBindBuffer(GL_ARRAY_BUFFER, carUVBuffer);
-        		glVertexAttribPointer(
-        			1,                                // attribute
-        			2,                                // size
-        			GL_FLOAT,                         // type
-        			GL_FALSE,                         // normalized?
-        			0,                                // stride
-        			(void*)0                          // array buffer offset
-        		);
-        
-        // Draw the triangle !
-       // glDrawArrays(GL_TRIANGLES, 0, carVertices.size() );
+     
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 
