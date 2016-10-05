@@ -32,8 +32,152 @@ const float FRONT_LEFT_TIRE_MAX = 2.91;
 const float FRONT_LEFT_TIRE_MIN = 1.31;
 const float FRONT_RIGHT_TIRE_MAX = 6.08;
 const float FRONT_RIGHT_TIRE_MIN = 4.48;
+const float tireScale = 0.25;
+const float baymaxScale = 0.04;
+
+
+float backLeftTireTheta = 2.11;
+float backLeftTireX = -3.1;
+float backLeftTireY = 0.15;
+float backLeftTireZ = -7.4;
+
+float frontLeftTireTheta = 2.11;
+float frontLeftTireX = -2.22;
+float frontLeftTireY = 0.15;
+float frontLeftTireZ = -6.9;
+
+float backRightTireTheta = 5.28;
+float backRightTireX = -2.7;
+float backRightTireY = 0.15;
+float backRightTireZ = -8.1;
+
+float frontRightTireTheta = 5.28;
+float frontRightTireX = -1.85;
+float frontRightTireY = 0.15;
+float frontRightTireZ = -7.55;
+
+
+
+float carTheta = 2.1;
+float carX = -2.5;
+float carY = 0;
+float carZ = -7.5;
+float carScale = 1;
+
+float baymaxTheta = 0.5;
+float baymaxX = -2.5;
+float baymaxY = 0.5;
+float baymaxZ = -7.5;
+
+
+const float translateX = 0.061111;
+const float translateZ = 0.03587;
+void translateObjects(float x, float y, float z) {
+    backLeftTireX += x;
+    backLeftTireY += y;
+    backLeftTireZ += z;
+    
+    frontLeftTireX += x;
+    frontLeftTireY += y;
+    frontLeftTireZ += z;
+    
+    backRightTireX += x;
+    backRightTireY += y;
+    backRightTireZ += z;
+    
+    frontRightTireX += x;
+    frontRightTireY += y;
+    frontRightTireZ += z;
+    
+    carX += x;
+    carY += y;
+    carZ += z;
+    
+    baymaxX += x;
+    baymaxY += y;
+    baymaxZ += z;
+}
+
+//looks at original car to front left tire orientation and makes sure this is consistent throughout translation
+glm::vec3 getFrontLeftTireOrientation() {
+    glm::vec3 orientation;
+    float x = carX - frontLeftTireX;
+    float z = carZ - frontLeftTireZ;
+    float arr[3] = {
+        x,
+        0,
+        z
+    };
+    orientation = glm::make_vec3(arr);
+
+    
+    
+    return orientation;
+}
+glm::vec3 frontRightTireOrientation() {
+    glm::vec3 orientation;
+    return orientation;
+}
+
+
+glm::vec3 backRightTireOrientation() {
+    glm::vec3 orientation;
+    return orientation;
+}
+glm::vec3 backLeftTireOrientation() {
+    glm::vec3 orientation;
+    return orientation;
+}
+const glm::vec3 frontLeftTireOrientation = getFrontLeftTireOrientation();
+void rotateObjects(float theta) {
+    backLeftTireTheta += theta;
+    
+    backRightTireTheta += theta;
+    carTheta += theta;
+    baymaxTheta += theta;
+    frontLeftTireX = carX - frontLeftTireOrientation[0];
+    frontLeftTireY = carY - frontLeftTireOrientation[1];
+    frontLeftTireZ = carZ - frontLeftTireOrientation[2];
+}
+
+void reset() {
+    
+     backLeftTireTheta = 2.11;
+     backLeftTireX = -3.1;
+     backLeftTireY = 0.15;
+     backLeftTireZ = -7.4;
+    
+     frontLeftTireTheta = 2.11;
+     frontLeftTireX = -2.22;
+     frontLeftTireY = 0.15;
+     frontLeftTireZ = -6.9;
+    
+     backRightTireTheta = 5.28;
+     backRightTireX = -2.7;
+     backRightTireY = 0.15;
+     backRightTireZ = -8.1;
+    
+     frontRightTireTheta = 5.28;
+     frontRightTireX = -1.85;
+     frontRightTireY = 0.15;
+     frontRightTireZ = -7.55;
+    
+    
+    
+     carTheta = 2.1;
+     carX = -2.5;
+     carY = 0;
+     carZ = -7.5;
+     carScale = 1;
+    
+     baymaxTheta = 0.5;
+     baymaxX = -2.5;
+     baymaxY = 0.5;
+     baymaxZ = -7.5;
+}
 int main( void )
 {
+
 	// Initialise GLFW
 	if( !glfwInit() )
 	{
@@ -109,50 +253,6 @@ int main( void )
     frontRightTire.setThetaMinAndMax(FRONT_RIGHT_TIRE_MIN, FRONT_RIGHT_TIRE_MAX);
     
     Car car = Car(frontLeftTire, frontRightTire, backLeftTire, backRightTire, baymax, carObj);
-    
-    const float tireScale = 0.25;
-    
-    
-    
-    float backLeftTireTheta = 2.11;
-    float backLeftTireX = -3.1;
-    float backLeftTireY = 0.15;
-    float backLeftTireZ = -7.4;
-    
-    float frontLeftTireTheta = 2.11;
-    float frontLeftTireX = -2.22;
-    float frontLeftTireY = 0.15;
-    float frontLeftTireZ = -6.9;
-    
-    float backRightTireTheta = 5.28;
-    float backRightTireX = -2.7;
-    float backRightTireY = 0.15;
-    float backRightTireZ = -8.1;
-    
-    float frontRightTireTheta = 5.28;
-    float frontRightTireX = -1.85;
-    float frontRightTireY = 0.15;
-    float frontRightTireZ = -7.55;
-    
-    
-   
-    float carTheta = 2.1;
-    float carX = -2.5;
-    float carY = 0;
-    float carZ = -7.5;
-    float carScale = 1;
-    
-    float baymaxTheta = 0.5;
-    float baymaxX = -2.5;
-    float baymaxY = 0.5;
-    float baymaxZ = -7.5;
-    const float baymaxScale = 0.04;
-    
- 
-    //left joystick = wasd
-    //right joystick = arrow keys
-    //move tires right = j
-    //move tires left = k
 
     do {
 
@@ -167,22 +267,30 @@ int main( void )
 		glm::mat4 ProjectionMatrix = getProjectionMatrix();
 		glm::mat4 ViewMatrix = getViewMatrix();
         
-       
+        if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+            reset();
+        }
        
         if (glfwGetKey( window, GLFW_KEY_J ) == GLFW_PRESS) {
             if(frontLeftTireTheta <= frontLeftTire.getMax() && frontRightTireTheta <= frontRightTire.getMax()) {
                 frontLeftTireTheta += .2;
                 frontRightTireTheta +=.2;
+                //rotateObjects(.2);
             }
             
-        } else if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+        } else if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
             if(frontLeftTireTheta >= frontLeftTire.getMin() && frontRightTireTheta >= frontRightTire.getMin()) {
                 frontLeftTireTheta -= .2;
                 frontRightTireTheta -=.2;
+                //rotateObjects(-0.2);
             }
-            
         }
-
+        
+        if(glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+            translateObjects(translateX, 0, translateZ);
+        } else if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+            translateObjects(-translateX, 0, -translateZ);
+        }
         Params baymaxParams = Params(ProjectionMatrix, ViewMatrix, baymaxX, baymaxY, baymaxZ, baymaxTheta, baymaxScale);
         
         Params frontLeftTireParams = Params(ProjectionMatrix, ViewMatrix, frontLeftTireX, frontLeftTireY, frontLeftTireZ, frontLeftTireTheta, tireScale);
@@ -203,6 +311,9 @@ int main( void )
         
         Params parkingLotParams = Params(ProjectionMatrix, ViewMatrix, 0, 0, 0, 0, 1);
         parkingLot.draw(parkingLotParams);
+        
+        
+        
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 

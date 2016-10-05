@@ -112,7 +112,6 @@ void computeMatricesFromInputs(){
     };
     
     ProjectionMatrix = glm::make_mat4(perspectiveMatrixArray);
-    
     glm::vec3 zaxis = glm::normalize(position + direction - position);
     glm::vec3 xaxis = glm::normalize(glm::cross(up,zaxis));
     glm::vec3 yaxis = glm::cross(zaxis, xaxis);
