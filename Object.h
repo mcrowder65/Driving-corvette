@@ -73,8 +73,6 @@ private:
             0, 0, 0, 1
         };
         this->rotation = glm::make_mat4(rotationArray);
-        
-
     }
     GLuint matrixID;
     GLuint texture;
@@ -94,7 +92,7 @@ public:
         this->matrixID = glGetUniformLocation(programID, "MVP");
         this->texture = loadPNG(textureFileName.c_str());
         this->textureID  = glGetUniformLocation(programID, "myTextureSampler");
-        bool res = loadOBJ(objectFileName.c_str(), vertices, uvs, normals);
+        loadOBJ(objectFileName.c_str(), vertices, uvs, normals);
         glGenBuffers(1, &vertexBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);

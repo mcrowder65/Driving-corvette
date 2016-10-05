@@ -22,6 +22,7 @@ public:
     float getMax() {
         return this->THETA_MAX;
     }
+    FrontTire(){}
     FrontTire(GLuint programID, string textureFileName, string objectFileName) : Object( programID,  textureFileName, objectFileName) {};
 private:
     float THETA_MIN;

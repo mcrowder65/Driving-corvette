@@ -20,7 +20,7 @@ using namespace glm;
 #include "texture.hpp"
 #include "controls.hpp"
 #include "objloader.hpp"
-//#include "Car.h"
+#include "Car.h"
 using namespace std;
 #include "FrontTire.h"
 #include "Object.h"
@@ -28,43 +28,12 @@ using namespace std;
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-static GLuint loadPNG(const char* path)
-{
-    int w;
-    int h;
-    int comp;
-    unsigned char* image = stbi_load(path, &w, &h, &comp, STBI_rgb);
-    
-    if (image == nullptr)
-        throw(std::string("Failed to load texture"));
-    
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-    
-    
-    glGenerateMipmap(GL_TEXTURE_2D);
-    
-    stbi_image_free(image);
-    
-    return textureID;
-};
-const float baymaxScale = 0.04;
 const float FRONT_LEFT_TIRE_MAX = 2.91;
 const float FRONT_LEFT_TIRE_MIN = 1.31;
 const float FRONT_RIGHT_TIRE_MAX = 6.08;
 const float FRONT_RIGHT_TIRE_MIN = 4.48;
 int main( void )
 {
-    //a car is an object... which contains 4 objects(tires), and an object (baymax)
 	// Initialise GLFW
 	if( !glfwInit() )
 	{
@@ -107,7 +76,6 @@ int main( void )
     glfwPollEvents();
     glfwSetCursorPos(window, 1024/2, 768/2);
 
-	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
 	// Enable depth test
@@ -139,6 +107,8 @@ int main( void )
     
     frontLeftTire.setThetaMinAndMax(FRONT_LEFT_TIRE_MIN, FRONT_LEFT_TIRE_MAX);
     frontRightTire.setThetaMinAndMax(FRONT_RIGHT_TIRE_MIN, FRONT_RIGHT_TIRE_MAX);
+    
+    Car car = Car(frontLeftTire, frontRightTire, backLeftTire, backRightTire, baymax, carObj);
     
     const float tireScale = 0.25;
     
@@ -176,7 +146,7 @@ int main( void )
     float baymaxX = -2.5;
     float baymaxY = 0.5;
     float baymaxZ = -7.5;
-    float baymaxScale = 0.04;
+    const float baymaxScale = 0.04;
     
  
     //left joystick = wasd
@@ -214,29 +184,25 @@ int main( void )
         }
 
         Params baymaxParams = Params(ProjectionMatrix, ViewMatrix, baymaxX, baymaxY, baymaxZ, baymaxTheta, baymaxScale);
-        baymax.draw(baymaxParams);
         
         Params frontLeftTireParams = Params(ProjectionMatrix, ViewMatrix, frontLeftTireX, frontLeftTireY, frontLeftTireZ, frontLeftTireTheta, tireScale);
-        frontLeftTire.draw(frontLeftTireParams);
         
         
         Params backLeftTireParams = Params(ProjectionMatrix, ViewMatrix, backLeftTireX, backLeftTireY, backLeftTireZ, backLeftTireTheta, tireScale);
-        backLeftTire.draw(backLeftTireParams);
         
         Params backRightTireParams = Params(ProjectionMatrix, ViewMatrix, backRightTireX, backRightTireY, backRightTireZ, backRightTireTheta, tireScale);
         
-        backRightTire.draw(backRightTireParams);
-        
         Params frontRightTireParams = Params(ProjectionMatrix, ViewMatrix, frontRightTireX, frontRightTireY, frontRightTireZ, frontRightTireTheta, tireScale);
-        frontRightTire.draw(frontRightTireParams);
+        
+        Params carParams = Params(ProjectionMatrix, ViewMatrix, carX, carY, carZ, carTheta, carScale);
+        
+        
+        car.draw(frontLeftTireParams, frontRightTireParams, backLeftTireParams, backRightTireParams, baymaxParams, carParams);
+        
+        
+        
         Params parkingLotParams = Params(ProjectionMatrix, ViewMatrix, 0, 0, 0, 0, 1);
         parkingLot.draw(parkingLotParams);
-
-        Params carParams = Params(ProjectionMatrix, ViewMatrix, carX, carY, carZ, carTheta, carScale);
-        carObj.draw(carParams);
-        
-        
-        
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 
