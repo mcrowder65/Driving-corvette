@@ -23,26 +23,24 @@ glm::mat4 getProjectionMatrix(){
 
 
 // Initial position : on +Z
-glm::vec3 position =glm::vec3(3.85178, 0.471703, -3.63897);// glm::vec3( 0, 0, 5 );]
-glm::vec3 getPosition() {
-    return position;
-}
-
-glm::vec3 initialLookAt = glm::vec3(4.69527, 0.431714, -3.10331);
+glm::vec3 position =glm::vec3(3.85178, 0.471703, -3.63897);
 // Initial horizontal angle : toward -Z
 float horizontalAngle = 1.04f;
-float getHorizontalAngle() {
-    return horizontalAngle;
-}
 // Initial vertical angle : none
 float verticalAngle = 0.0f;
 // Initial Field of View
 float initialFoV = 45.0f;
 
-float speed = 3.0f; // 3 units / second
+float speed = 10.0f; // 3 units / second
 float mouseSpeed = 0.005f;
-
+void resetCamera() {
+    position =glm::vec3(3.85178, 0.471703, -3.63897);
+    initialFoV = 45.0f;
+    horizontalAngle = 1.04f;
+    verticalAngle = 0.0f;
+}
 void computeMatricesFromInputs(){
+    
     // glfwGetTime is called only once, the first time this function is called
     static double lastTime = glfwGetTime();
     
@@ -52,17 +50,18 @@ void computeMatricesFromInputs(){
     
     // Get mouse position
     double xpos = 512, ypos = 384;
+    int increase = 12;
     if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        ypos += 2;
+        ypos += increase;
     }
     if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        ypos -=2;
+        ypos -= increase;
     }
     if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        xpos -=2;
+        xpos -= increase;
     }
     if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        xpos +=2;
+        xpos += increase;
     }
     // Compute new orientation
     horizontalAngle += mouseSpeed * float(1024/2 - xpos );
@@ -127,6 +126,7 @@ void computeMatricesFromInputs(){
         xaxis[2], yaxis[2], zaxis[2], 0,
         -1 * glm::dot(xaxis, position), -1 * glm::dot(yaxis, position), -1 * glm::dot(zaxis, position), 1
     };
+    
     ViewMatrix = glm::make_mat4(viewMatrixArray);
     
     // For the next frame, the "last time" will be "now"

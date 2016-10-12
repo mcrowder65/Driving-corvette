@@ -77,25 +77,84 @@ float referenceY = 0.25;
 float referenceZ = -7.1;
 float referenceScale = 0.01;
 
-const float translateX = 0.061111;
-const float translateZ = 0.03587;
+float translateX = 0.061111;
+float translateZ = 0.03587;
+const float initialTranslateX = translateX;
+const float initialTranslateZ = translateZ;
 
+
+void translateObjects(float x, float y, float z);
+void moveCar(FrontTire frontLeftTire, FrontTire frontRightTire) {
+    bool somethingPressed = false;
+
+    float preX = 0;
+    float preZ = 0;
+    if (glfwGetKey( window, GLFW_KEY_J ) == GLFW_PRESS) {
+        if(frontLeftTireTheta <= frontLeftTire.getMax() && frontRightTireTheta <= frontRightTire.getMax()) {
+            frontLeftTireTheta += .2;
+            frontRightTireTheta +=.2;
+        }
+        
+    } else if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+        if(frontLeftTireTheta >= frontLeftTire.getMin() && frontRightTireTheta >= frontRightTire.getMin()) {
+            frontLeftTireTheta -= .2;
+            frontRightTireTheta -=.2;
+        }
+    }
+    if(glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+        float adjacentArray[3] = {
+            translateX, 0, translateZ
+        };
+        vec3 adjacent = glm::make_vec3(adjacentArray);
+        float angle = (frontLeftTireTheta - initialFrontLeftTireTheta) * 180 / M_PI;//(frontLeftTireTheta * 180) / M_PI;//- initialFrontLeftTireTheta;
+//        ( radians * 180 ) / pi ;
+        cout << "angle: " << angle << endl;
+
+        float cosTheta = cos(angle);
+        cout << "cosTheta: " << cosTheta << endl;
+        adjacent[0] /= cosTheta;
+        adjacent[2] /= cosTheta;
+        cout << "adjacent[0]: " << adjacent[0] << " adjacent[2]: " << adjacent[2] << endl;
+        carX += (adjacent[0] / cosTheta);
+        carZ += (adjacent[2] / cosTheta);
+        translateX = adjacent[0];
+        translateZ = adjacent[2];
+//        translateObjects(hypotenuse[0], 0, hypotenuse[2]);
+        somethingPressed = true;
+    } else if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+        preX = carX - translateX;
+        preZ = carZ - translateZ;
+        float adjacentArray[3] = {
+            carX, carY, carZ
+        };
+        vec3 adjacent = glm::make_vec3(adjacentArray);
+        translateObjects(-translateX, 0, -translateZ);
+        
+        somethingPressed = true;
+    }
+    
+   
+//    float postX = carX;
+//    float postZ = carZ;
+//    if(somethingPressed) {
+//        if(preX != postX) {
+//            cout << "x is broken " << " preX: " << preX << " postX: " << postX << endl;
+//        }
+//        if(preZ != postZ) {
+//            cout << "z is broken " << " preZ: " << preZ << " postZ: " << postZ << endl;
+//        }
+//    }
+    
+    
+}
 void rotateObjects(float theta) {
     backLeftTireTheta += theta;
     
     backRightTireTheta += theta;
     carTheta += theta;
     baymaxTheta += theta;
-
+    
 }
-static double lastTime = glfwGetTime();
-static float horizontalAngle = carTheta;
-static glm::vec3 position = glm::vec3(carX, carY, carZ);
-static float verticalAngle = 0.0f;
-
-static float speed = 3.0f; // 3 units / second
-static float mouseSpeed = 0.005f;
-
 void translateObjects(float x, float y, float z) {
     backLeftTireX += x;
     backLeftTireY += y;
@@ -125,67 +184,6 @@ void translateObjects(float x, float y, float z) {
     referenceY += y;
     referenceZ += z;
 }
-void moveCar(FrontTire frontLeftTire, FrontTire frontRightTire) {
-    bool somethingPressed = false;
-
-    float preX = 0;
-    float preZ = 0;
-    if (glfwGetKey( window, GLFW_KEY_J ) == GLFW_PRESS) {
-        if(frontLeftTireTheta <= frontLeftTire.getMax() && frontRightTireTheta <= frontRightTire.getMax()) {
-            frontLeftTireTheta += .2;
-            frontRightTireTheta +=.2;
-        }
-        
-    } else if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
-        if(frontLeftTireTheta >= frontLeftTire.getMin() && frontRightTireTheta >= frontRightTire.getMin()) {
-            frontLeftTireTheta -= .2;
-            frontRightTireTheta -=.2;
-        }
-    }
-    if(glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
-        float adjacentArray[3] = {
-            carX + translateX, carY, carZ + translateZ
-        };
-        vec3 adjacent = glm::make_vec3(adjacentArray);
-        float angle = (frontLeftTireTheta * 180) / M_PI;//- initialFrontLeftTireTheta;
-        cout << "frontLeftTireTheta: " << angle << endl;
-//        ( radians * 180 ) / pi ;
-        float cosTheta = cos(angle);
-        cout << "cosTheta: " << cosTheta << endl;
-        vec3 hypotenuse = adjacent / cosTheta;
-        cout << "hypotenuse[0]: " << hypotenuse[0] << " hypotenuse[2]: " << hypotenuse[2] << endl;
-        cout << "adjacent[0]: " << adjacent[0] << " adjacent[2]: " << adjacent[2] << endl;
-        carX = hypotenuse[0];
-        carZ = hypotenuse[2];
-//        translateObjects(hypotenuse[0], 0, hypotenuse[2]);
-        somethingPressed = true;
-    } else if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
-        preX = carX - translateX;
-        preZ = carZ - translateZ;
-        float adjacentArray[3] = {
-            carX, carY, carZ
-        };
-        vec3 adjacent = glm::make_vec3(adjacentArray);
-        translateObjects(-translateX, 0, -translateZ);
-        
-        somethingPressed = true;
-    }
-    
-   
-//    float postX = carX;
-//    float postZ = carZ;
-//    if(somethingPressed) {
-//        if(preX != postX) {
-//            cout << "x is broken " << " preX: " << preX << " postX: " << postX << endl;
-//        }
-//        if(preZ != postZ) {
-//            cout << "z is broken " << " preZ: " << preZ << " postZ: " << postZ << endl;
-//        }
-//    }
-    
-    
-}
-
 glm::vec3 getReferenceOrientation() {
     float arr[3] = {
         carX - referenceX,
@@ -265,6 +263,10 @@ void reset() {
      referenceY = 0.5;
      referenceZ = -7.5;
      referenceScale = 0.01;
+    
+     translateX = initialTranslateX;
+     translateZ = initialTranslateZ;
+     resetCamera();
 }
 int main( void )
 {
