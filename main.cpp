@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
-
+#include <math.h>
 // Include GLEW
 #include <GL/glew.h>
 #include <glm/gtx/transform.hpp> // after <glm/glm.hpp>
@@ -42,7 +42,7 @@ float backLeftTireY = 0.15;
 float backLeftTireZ = -7.4;
 
 float frontLeftTireTheta = 2.11;
-float initialFrontLeftTireTheta = frontLeftTireTheta;
+const float initialFrontLeftTireTheta = frontLeftTireTheta;
 float frontLeftTireX = -2.22;
 float frontLeftTireY = 0.15;
 float frontLeftTireZ = -6.9;
@@ -53,7 +53,7 @@ float backRightTireY = 0.15;
 float backRightTireZ = -8.1;
 
 float frontRightTireTheta = 5.28;
-float initialFrontRightTireTheta = frontRightTireTheta;
+const float initialFrontRightTireTheta = frontRightTireTheta;
 float frontRightTireX = -1.85;
 float frontRightTireY = 0.15;
 float frontRightTireZ = -7.55;
@@ -95,11 +95,6 @@ static float verticalAngle = 0.0f;
 
 static float speed = 3.0f; // 3 units / second
 static float mouseSpeed = 0.005f;
-void moveCar() {
-    
-    cout << "carX: " << carX << " carZ: " << carZ << endl;
-    
-}
 
 void translateObjects(float x, float y, float z) {
     backLeftTireX += x;
@@ -130,6 +125,67 @@ void translateObjects(float x, float y, float z) {
     referenceY += y;
     referenceZ += z;
 }
+void moveCar(FrontTire frontLeftTire, FrontTire frontRightTire) {
+    bool somethingPressed = false;
+
+    float preX = 0;
+    float preZ = 0;
+    if (glfwGetKey( window, GLFW_KEY_J ) == GLFW_PRESS) {
+        if(frontLeftTireTheta <= frontLeftTire.getMax() && frontRightTireTheta <= frontRightTire.getMax()) {
+            frontLeftTireTheta += .2;
+            frontRightTireTheta +=.2;
+        }
+        
+    } else if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+        if(frontLeftTireTheta >= frontLeftTire.getMin() && frontRightTireTheta >= frontRightTire.getMin()) {
+            frontLeftTireTheta -= .2;
+            frontRightTireTheta -=.2;
+        }
+    }
+    if(glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+        float adjacentArray[3] = {
+            carX + translateX, carY, carZ + translateZ
+        };
+        vec3 adjacent = glm::make_vec3(adjacentArray);
+        float angle = (frontLeftTireTheta * 180) / M_PI;//- initialFrontLeftTireTheta;
+        cout << "frontLeftTireTheta: " << angle << endl;
+//        ( radians * 180 ) / pi ;
+        float cosTheta = cos(angle);
+        cout << "cosTheta: " << cosTheta << endl;
+        vec3 hypotenuse = adjacent / cosTheta;
+        cout << "hypotenuse[0]: " << hypotenuse[0] << " hypotenuse[2]: " << hypotenuse[2] << endl;
+        cout << "adjacent[0]: " << adjacent[0] << " adjacent[2]: " << adjacent[2] << endl;
+        carX = hypotenuse[0];
+        carZ = hypotenuse[2];
+//        translateObjects(hypotenuse[0], 0, hypotenuse[2]);
+        somethingPressed = true;
+    } else if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
+        preX = carX - translateX;
+        preZ = carZ - translateZ;
+        float adjacentArray[3] = {
+            carX, carY, carZ
+        };
+        vec3 adjacent = glm::make_vec3(adjacentArray);
+        translateObjects(-translateX, 0, -translateZ);
+        
+        somethingPressed = true;
+    }
+    
+   
+//    float postX = carX;
+//    float postZ = carZ;
+//    if(somethingPressed) {
+//        if(preX != postX) {
+//            cout << "x is broken " << " preX: " << preX << " postX: " << postX << endl;
+//        }
+//        if(preZ != postZ) {
+//            cout << "z is broken " << " preZ: " << preZ << " postZ: " << postZ << endl;
+//        }
+//    }
+    
+    
+}
+
 glm::vec3 getReferenceOrientation() {
     float arr[3] = {
         carX - referenceX,
@@ -304,24 +360,9 @@ int main( void )
             reset();
         }
         
-        if (glfwGetKey( window, GLFW_KEY_J ) == GLFW_PRESS) {
-            if(frontLeftTireTheta <= frontLeftTire.getMax() && frontRightTireTheta <= frontRightTire.getMax()) {
-                frontLeftTireTheta += .2;
-                frontRightTireTheta +=.2;
-            }
-            
-        } else if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
-            if(frontLeftTireTheta >= frontLeftTire.getMin() && frontRightTireTheta >= frontRightTire.getMin()) {
-                frontLeftTireTheta -= .2;
-                frontRightTireTheta -=.2;
-            }
-        }
-        moveCar();
-        if(glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
-            translateObjects(translateX, 0, translateZ);
-        } else if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
-            translateObjects(-translateX, 0, -translateZ);
-        }
+        
+        moveCar(frontLeftTire, frontRightTire);
+        
         Params baymaxParams = Params(ProjectionMatrix, ViewMatrix, baymaxX, baymaxY, baymaxZ, baymaxTheta, baymaxScale);
         
         Params frontLeftTireParams = Params(ProjectionMatrix, ViewMatrix, frontLeftTireX, frontLeftTireY, frontLeftTireZ, frontLeftTireTheta, tireScale);
