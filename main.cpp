@@ -40,8 +40,10 @@ float backLeftTireTheta = 2.11;
 float backLeftTireX = -3.1;
 float backLeftTireY = 0.15;
 float backLeftTireZ = -7.4;
-
-float frontLeftTireTheta = 2.11;
+float diff = 7.3;
+float frontLeftTireTheta = 2.10;
+float maxRotationRight = 2.10 + 2.f * M_PI;
+float maxRotationLeft = 2.10 - 2.f * M_PI;
 const float initialFrontLeftTireTheta = frontLeftTireTheta;
 float frontLeftTireX = -2.22;
 float frontLeftTireY = 0.15;
@@ -53,7 +55,6 @@ float backRightTireY = 0.15;
 float backRightTireZ = -8.1;
 
 float frontRightTireTheta = 5.28;
-const float initialFrontRightTireTheta = frontRightTireTheta;
 float frontRightTireX = -1.85;
 float frontRightTireY = 0.15;
 float frontRightTireZ = -7.55;
@@ -79,77 +80,84 @@ float referenceScale = 0.01;
 
 float translateX = 0.061111;
 float translateZ = 0.03587;
-const float initialTranslateX = translateX;
-const float initialTranslateZ = translateZ;
+int rightCounter = 0;
+int leftCounter = 0;
+//const float initialTranslateX = translateX;
+//const float initialTranslateZ = translateZ;
 
-
-void translateObjects(float x, float y, float z);
+void translateObjects(float, float, float);
+void rotateObjects(float);
+void rotateTires(float);
+void resetCounters() {
+    rightCounter = 0;
+    leftCounter = 0;
+}
+void changeWheelThetas() {
+    float temp = frontLeftTireTheta;
+    float diff = 0.025;
+    float left = maxRotationRight - diff;
+    float right = maxRotationRight + diff;
+    if( left <= temp && temp <= right) {
+        frontLeftTireTheta = maxRotationLeft;
+        resetCounters();
+        cout << "changing theta to max rotation left"<<endl;
+        return;
+    }
+    left = maxRotationLeft + diff;
+    right = maxRotationLeft - diff;
+    if(left >= temp && temp >= right) {
+        frontLeftTireTheta = maxRotationRight;
+        resetCounters();
+        cout << "changing theta to max rotation right" << endl;
+        return;
+    }
+}
 void moveCar(FrontTire frontLeftTire, FrontTire frontRightTire) {
-    bool somethingPressed = false;
-
-    float preX = 0;
-    float preZ = 0;
-    if (glfwGetKey( window, GLFW_KEY_J ) == GLFW_PRESS) {
-        if(frontLeftTireTheta <= frontLeftTire.getMax() && frontRightTireTheta <= frontRightTire.getMax()) {
-            frontLeftTireTheta += .2;
-            frontRightTireTheta +=.2;
-        }
+    const float translate = 0.05;
+    const float rotateConst = 0.05;
+    float rotate = frontLeftTireTheta;
+    
+    
+    if (glfwGetKey( window, GLFW_KEY_L ) == GLFW_PRESS) {
+        //right
+        rightCounter++;
+        //don't forget to limit the range
+        rotateTires(rotateConst);
+        changeWheelThetas();
         
-    } else if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
-        if(frontLeftTireTheta >= frontLeftTire.getMin() && frontRightTireTheta >= frontRightTire.getMin()) {
-            frontLeftTireTheta -= .2;
-            frontRightTireTheta -=.2;
-        }
+    } else if(glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
+        //left
+        leftCounter++;
+        //dont forget to limit the range
+        rotateTires(-rotateConst);
+        changeWheelThetas();
     }
+    
+    
+    rotate = rightCounter > leftCounter ? rotateConst : leftCounter > rightCounter ? -rotateConst : 0;
+
+    float angle = frontLeftTireTheta == initialFrontLeftTireTheta ? 0 : frontLeftTireTheta;//- initialFrontLeftTireTheta;
+    float sinAngle = sin(angle);
+    float cosAngle = cos(angle);
+    bool angleEquals0 = angle == 0;
+    
     if(glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
-        float adjacentArray[3] = {
-            translateX, 0, translateZ
-        };
-        vec3 adjacent = glm::make_vec3(adjacentArray);
-        float angle = (frontLeftTireTheta - initialFrontLeftTireTheta) * 180 / M_PI;//(frontLeftTireTheta * 180) / M_PI;//- initialFrontLeftTireTheta;
-//        ( radians * 180 ) / pi ;
-        cout << "angle: " << angle << endl;
-
-        float cosTheta = cos(angle);
-        cout << "cosTheta: " << cosTheta << endl;
-        adjacent[0] /= cosTheta;
-        adjacent[2] /= cosTheta;
-        cout << "adjacent[0]: " << adjacent[0] << " adjacent[2]: " << adjacent[2] << endl;
-        carX += (adjacent[0] / cosTheta);
-        carZ += (adjacent[2] / cosTheta);
-        translateX = adjacent[0];
-        translateZ = adjacent[2];
-//        translateObjects(hypotenuse[0], 0, hypotenuse[2]);
-        somethingPressed = true;
+        translateObjects(!angleEquals0 ? translate * sinAngle : translateX, 0,  angle != 0 ? -1 * translate * cosAngle : translateZ);
+        rotateObjects(!angleEquals0 ? rotate : 0);
+        rotateTires(!angleEquals0 ? rotate : 0);
     } else if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
-        preX = carX - translateX;
-        preZ = carZ - translateZ;
-        float adjacentArray[3] = {
-            carX, carY, carZ
-        };
-        vec3 adjacent = glm::make_vec3(adjacentArray);
-        translateObjects(-translateX, 0, -translateZ);
-        
-        somethingPressed = true;
+        translateObjects(!angleEquals0 ? -1 * translate * sinAngle : -translateX, 0, !angleEquals0 ? translate * cosAngle : -translateZ);
+        rotateObjects(!angleEquals0 ? rotate : 0);
+        rotateTires(!angleEquals0 ? rotate : 0);
     }
-    
-   
-//    float postX = carX;
-//    float postZ = carZ;
-//    if(somethingPressed) {
-//        if(preX != postX) {
-//            cout << "x is broken " << " preX: " << preX << " postX: " << postX << endl;
-//        }
-//        if(preZ != postZ) {
-//            cout << "z is broken " << " preZ: " << preZ << " postZ: " << postZ << endl;
-//        }
-//    }
-    
-    
+
+}
+void rotateTires(float theta) {
+    frontLeftTireTheta += theta;
+    frontRightTireTheta += theta;
 }
 void rotateObjects(float theta) {
     backLeftTireTheta += theta;
-    
     backRightTireTheta += theta;
     carTheta += theta;
     baymaxTheta += theta;
@@ -184,55 +192,15 @@ void translateObjects(float x, float y, float z) {
     referenceY += y;
     referenceZ += z;
 }
-glm::vec3 getReferenceOrientation() {
-    float arr[3] = {
-        carX - referenceX,
-        0,
-        carZ - referenceZ
-    };
-    return glm::make_vec3(arr);
-}
 //looks at original car to front left tire orientation and makes sure this is consistent throughout translation
-glm::vec3 getFrontLeftTireOrientation() {
-    glm::vec3 orientation;
-    float x = carX - frontLeftTireX;
-    float z = carZ - frontLeftTireZ;
-    float arr[3] = {
-        x,
-        0,
-        z
-    };
-    orientation = glm::make_vec3(arr);
-
-    
-    
-    return orientation;
-}
-glm::vec3 frontRightTireOrientation() {
-    glm::vec3 orientation;
-    return orientation;
-}
-
-
-glm::vec3 backRightTireOrientation() {
-    glm::vec3 orientation;
-    return orientation;
-}
-glm::vec3 backLeftTireOrientation() {
-    glm::vec3 orientation;
-    return orientation;
-}
-const glm::vec3 frontLeftTireOrientation = getFrontLeftTireOrientation();
-
-
 void reset() {
     
-     backLeftTireTheta = 2.11;
+     backLeftTireTheta = initialFrontLeftTireTheta;
      backLeftTireX = -3.1;
      backLeftTireY = 0.15;
      backLeftTireZ = -7.4;
     
-     frontLeftTireTheta = 2.11;
+     frontLeftTireTheta = initialFrontLeftTireTheta;
      frontLeftTireX = -2.22;
      frontLeftTireY = 0.15;
      frontLeftTireZ = -6.9;
@@ -264,9 +232,7 @@ void reset() {
      referenceZ = -7.5;
      referenceScale = 0.01;
     
-     translateX = initialTranslateX;
-     translateZ = initialTranslateZ;
-     resetCamera();
+    resetCounters();
 }
 int main( void )
 {
@@ -361,8 +327,9 @@ int main( void )
         if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
             reset();
         }
-        
-        
+        if(glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
+            resetCamera();
+        }
         moveCar(frontLeftTire, frontRightTire);
         
         Params baymaxParams = Params(ProjectionMatrix, ViewMatrix, baymaxX, baymaxY, baymaxZ, baymaxTheta, baymaxScale);
