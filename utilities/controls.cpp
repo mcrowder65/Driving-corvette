@@ -24,9 +24,16 @@ glm::mat4 getProjectionMatrix(){
 
 // Initial position : on +Z
 glm::vec3 position =glm::vec3(3.85178, 0.471703, -3.63897);// glm::vec3( 0, 0, 5 );]
+glm::vec3 getPosition() {
+    return position;
+}
+
 glm::vec3 initialLookAt = glm::vec3(4.69527, 0.431714, -3.10331);
 // Initial horizontal angle : toward -Z
 float horizontalAngle = 1.04f;
+float getHorizontalAngle() {
+    return horizontalAngle;
+}
 // Initial vertical angle : none
 float verticalAngle = 0.0f;
 // Initial Field of View
@@ -36,7 +43,6 @@ float speed = 3.0f; // 3 units / second
 float mouseSpeed = 0.005f;
 
 void computeMatricesFromInputs(){
-    
     // glfwGetTime is called only once, the first time this function is called
     static double lastTime = glfwGetTime();
     

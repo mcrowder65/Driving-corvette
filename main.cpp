@@ -16,10 +16,10 @@ GLFWwindow* window;
 using namespace glm;
 #include <string>
 #include <iostream>
-#include "shader.hpp"
-#include "texture.hpp"
-#include "controls.hpp"
-#include "objloader.hpp"
+#include "utilities/shader.hpp"
+#include "utilities/texture.hpp"
+#include "utilities/controls.hpp"
+#include "utilities/objloader.hpp"
 #include "Car.h"
 using namespace std;
 #include "FrontTire.h"
@@ -42,6 +42,7 @@ float backLeftTireY = 0.15;
 float backLeftTireZ = -7.4;
 
 float frontLeftTireTheta = 2.11;
+float initialFrontLeftTireTheta = frontLeftTireTheta;
 float frontLeftTireX = -2.22;
 float frontLeftTireY = 0.15;
 float frontLeftTireZ = -6.9;
@@ -52,6 +53,7 @@ float backRightTireY = 0.15;
 float backRightTireZ = -8.1;
 
 float frontRightTireTheta = 5.28;
+float initialFrontRightTireTheta = frontRightTireTheta;
 float frontRightTireX = -1.85;
 float frontRightTireY = 0.15;
 float frontRightTireZ = -7.55;
@@ -69,9 +71,36 @@ float baymaxX = -2.5;
 float baymaxY = 0.5;
 float baymaxZ = -7.5;
 
+float referenceTheta = 0;
+float referenceX = -1.8;
+float referenceY = 0.25;
+float referenceZ = -7.1;
+float referenceScale = 0.01;
 
 const float translateX = 0.061111;
 const float translateZ = 0.03587;
+
+void rotateObjects(float theta) {
+    backLeftTireTheta += theta;
+    
+    backRightTireTheta += theta;
+    carTheta += theta;
+    baymaxTheta += theta;
+
+}
+static double lastTime = glfwGetTime();
+static float horizontalAngle = carTheta;
+static glm::vec3 position = glm::vec3(carX, carY, carZ);
+static float verticalAngle = 0.0f;
+
+static float speed = 3.0f; // 3 units / second
+static float mouseSpeed = 0.005f;
+void moveCar() {
+    
+    cout << "carX: " << carX << " carZ: " << carZ << endl;
+    
+}
+
 void translateObjects(float x, float y, float z) {
     backLeftTireX += x;
     backLeftTireY += y;
@@ -96,8 +125,19 @@ void translateObjects(float x, float y, float z) {
     baymaxX += x;
     baymaxY += y;
     baymaxZ += z;
+    
+    referenceX += x;
+    referenceY += y;
+    referenceZ += z;
 }
-
+glm::vec3 getReferenceOrientation() {
+    float arr[3] = {
+        carX - referenceX,
+        0,
+        carZ - referenceZ
+    };
+    return glm::make_vec3(arr);
+}
 //looks at original car to front left tire orientation and makes sure this is consistent throughout translation
 glm::vec3 getFrontLeftTireOrientation() {
     glm::vec3 orientation;
@@ -129,16 +169,7 @@ glm::vec3 backLeftTireOrientation() {
     return orientation;
 }
 const glm::vec3 frontLeftTireOrientation = getFrontLeftTireOrientation();
-void rotateObjects(float theta) {
-    backLeftTireTheta += theta;
-    
-    backRightTireTheta += theta;
-    carTheta += theta;
-    baymaxTheta += theta;
-    frontLeftTireX = carX - frontLeftTireOrientation[0];
-    frontLeftTireY = carY - frontLeftTireOrientation[1];
-    frontLeftTireZ = carZ - frontLeftTireOrientation[2];
-}
+
 
 void reset() {
     
@@ -162,8 +193,6 @@ void reset() {
      frontRightTireY = 0.15;
      frontRightTireZ = -7.55;
     
-    
-    
      carTheta = 2.1;
      carX = -2.5;
      carY = 0;
@@ -174,10 +203,15 @@ void reset() {
      baymaxX = -2.5;
      baymaxY = 0.5;
      baymaxZ = -7.5;
+    
+     referenceTheta = 0;
+     referenceX = -2.5;
+     referenceY = 0.5;
+     referenceZ = -7.5;
+     referenceScale = 0.01;
 }
 int main( void )
 {
-
 	// Initialise GLFW
 	if( !glfwInit() )
 	{
@@ -235,25 +269,24 @@ int main( void )
 	glBindVertexArray(VertexArrayID);
 
 	// Create and compile our GLSL program from the shaders
-	GLuint programID = LoadShaders( "TransformVertexShader.vertexshader", "TextureFragmentShader.fragmentshader" );
+	GLuint programID = LoadShaders( "shaders/TransformVertexShader.vertexshader", "shaders/TextureFragmentShader.fragmentshader" );
 
     
     
-    Object carObj = Object(programID, "car.png", "car.obj");
-    Object parkingLot = Object(programID, "ParkingLot.png", "ParkingLot.obj");
-    FrontTire frontLeftTire = FrontTire(programID, "tire.png", "tire.obj");
-    FrontTire frontRightTire = FrontTire(programID, "tire.png", "tire.obj");
+    Object carObj = Object(programID, "textures/car.png", "objects/car.obj");
+    Object parkingLot = Object(programID, "textures/ParkingLot.png", "objects/ParkingLot.obj");
+    FrontTire frontLeftTire = FrontTire(programID, "textures/tire.png", "objects/tire.obj");
+    FrontTire frontRightTire = FrontTire(programID, "textures/tire.png", "objects/tire.obj");
     
-    Object backRightTire = Object(programID, "tire.png", "tire.obj");
-    Object backLeftTire = Object(programID, "tire.png", "tire.obj");
-    Object baymax = Object(programID, "Solid_white.png", "baymax.obj");
-
+    Object backRightTire = Object(programID, "textures/tire.png", "objects/tire.obj");
+    Object backLeftTire = Object(programID, "textures/tire.png", "objects/tire.obj");
+    Object baymax = Object(programID, "textures/Solid_white.png", "objects/baymax.obj");
+    Object reference = Object(programID, "textures/Solid_white.png", "objects/reference.obj");
     
     frontLeftTire.setThetaMinAndMax(FRONT_LEFT_TIRE_MIN, FRONT_LEFT_TIRE_MAX);
     frontRightTire.setThetaMinAndMax(FRONT_RIGHT_TIRE_MIN, FRONT_RIGHT_TIRE_MAX);
     
-    Car car = Car(frontLeftTire, frontRightTire, backLeftTire, backRightTire, baymax, carObj);
-
+    Car car = Car(frontLeftTire, frontRightTire, backLeftTire, backRightTire, baymax, carObj, reference);
     do {
 
 		// Clear the screen
@@ -270,22 +303,20 @@ int main( void )
         if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
             reset();
         }
-       
+        
         if (glfwGetKey( window, GLFW_KEY_J ) == GLFW_PRESS) {
             if(frontLeftTireTheta <= frontLeftTire.getMax() && frontRightTireTheta <= frontRightTire.getMax()) {
                 frontLeftTireTheta += .2;
                 frontRightTireTheta +=.2;
-                //rotateObjects(.2);
             }
             
         } else if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
             if(frontLeftTireTheta >= frontLeftTire.getMin() && frontRightTireTheta >= frontRightTire.getMin()) {
                 frontLeftTireTheta -= .2;
                 frontRightTireTheta -=.2;
-                //rotateObjects(-0.2);
             }
         }
-        
+        moveCar();
         if(glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
             translateObjects(translateX, 0, translateZ);
         } else if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
@@ -304,8 +335,9 @@ int main( void )
         
         Params carParams = Params(ProjectionMatrix, ViewMatrix, carX, carY, carZ, carTheta, carScale);
         
-        
-        car.draw(frontLeftTireParams, frontRightTireParams, backLeftTireParams, backRightTireParams, baymaxParams, carParams);
+        Params referenceParams = Params(ProjectionMatrix, ViewMatrix, referenceX, referenceY, referenceZ, referenceTheta, referenceScale);
+
+        car.draw(frontLeftTireParams, frontRightTireParams, backLeftTireParams, backRightTireParams, baymaxParams, carParams, referenceParams);
         
         
         
