@@ -41,13 +41,23 @@ float backLeftTireX = -3.1;
 float backLeftTireY = 0.15;
 float backLeftTireZ = -7.4;
 float diff = 7.3;
-float frontLeftTireTheta = 2.10;
+
 float maxRotationRight = 2.10 + 2.f * M_PI;
 float maxRotationLeft = 2.10 - 2.f * M_PI;
+
+
+float carTheta = 2.1;
+float carX = -2.5;
+float carY = 0;
+float carZ = -7.5;
+float carScale = 1;
+
+
+float frontLeftTireTheta = 2.10;
 const float initialFrontLeftTireTheta = frontLeftTireTheta;
-float frontLeftTireX = -2.22;
+float frontLeftTireX = carX + .28;//-2.22;
 float frontLeftTireY = 0.15;
-float frontLeftTireZ = -6.9;
+float frontLeftTireZ = carZ + 0.6;//-6.9;
 
 float backRightTireTheta = 5.28;
 float backRightTireX = -2.7;
@@ -61,22 +71,11 @@ float frontRightTireZ = -7.55;
 
 
 
-float carTheta = 2.1;
-float carX = -2.5;
-float carY = 0;
-float carZ = -7.5;
-float carScale = 1;
 
 float baymaxTheta = 0.5;
 float baymaxX = -2.5;
 float baymaxY = 0.5;
 float baymaxZ = -7.5;
-
-float referenceTheta = 0;
-float referenceX = -1.8;
-float referenceY = 0.25;
-float referenceZ = -7.1;
-float referenceScale = 0.01;
 
 float translateX = 0.061111;
 float translateZ = 0.03587;
@@ -88,67 +87,35 @@ int leftCounter = 0;
 void translateObjects(float, float, float);
 void rotateObjects(float);
 void rotateTires(float);
-void resetCounters() {
-    rightCounter = 0;
-    leftCounter = 0;
-}
-void changeWheelThetas() {
-    float temp = frontLeftTireTheta;
-    float diff = 0.025;
-    float left = maxRotationRight - diff;
-    float right = maxRotationRight + diff;
-    if( left <= temp && temp <= right) {
-        frontLeftTireTheta = maxRotationLeft;
-        resetCounters();
-        cout << "changing theta to max rotation left"<<endl;
-        return;
-    }
-    left = maxRotationLeft + diff;
-    right = maxRotationLeft - diff;
-    if(left >= temp && temp >= right) {
-        frontLeftTireTheta = maxRotationRight;
-        resetCounters();
-        cout << "changing theta to max rotation right" << endl;
-        return;
-    }
-}
 void moveCar(FrontTire frontLeftTire, FrontTire frontRightTire) {
-    const float translate = 0.05;
     const float rotateConst = 0.05;
-    float rotate = frontLeftTireTheta;
     
     
     if (glfwGetKey( window, GLFW_KEY_L ) == GLFW_PRESS) {
         //right
-        rightCounter++;
-        //don't forget to limit the range
         rotateTires(rotateConst);
-        changeWheelThetas();
         
     } else if(glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
         //left
-        leftCounter++;
-        //dont forget to limit the range
         rotateTires(-rotateConst);
-        changeWheelThetas();
     }
     
     
-    rotate = rightCounter > leftCounter ? rotateConst : leftCounter > rightCounter ? -rotateConst : 0;
-
-    float angle = frontLeftTireTheta == initialFrontLeftTireTheta ? 0 : frontLeftTireTheta;//- initialFrontLeftTireTheta;
-    float sinAngle = sin(angle);
-    float cosAngle = cos(angle);
-    bool angleEquals0 = angle == 0;
+    float rotate = frontLeftTireTheta - carTheta;
+    float angle = frontLeftTireTheta;
+    float sinAngle = angle != 0 ? sin(angle) : 1;
+    float cosAngle = angle != 0 ? cos(angle) : -1;
     
     if(glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
-        translateObjects(!angleEquals0 ? translate * sinAngle : translateX, 0,  angle != 0 ? -1 * translate * cosAngle : translateZ);
-        rotateObjects(!angleEquals0 ? rotate : 0);
-        rotateTires(!angleEquals0 ? rotate : 0);
+        float x = translateX * sinAngle;
+        float z = -1 * translateX * cosAngle;
+        translateObjects(x, 0, z);
+        rotateObjects(rotate/10);
     } else if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) {
-        translateObjects(!angleEquals0 ? -1 * translate * sinAngle : -translateX, 0, !angleEquals0 ? translate * cosAngle : -translateZ);
-        rotateObjects(!angleEquals0 ? rotate : 0);
-        rotateTires(!angleEquals0 ? rotate : 0);
+        float x = -1 * translateX * sinAngle;
+        float z = translateX * cosAngle;
+        translateObjects(x, 0, z);
+        rotateObjects(rotate/10);
     }
 
 }
@@ -157,20 +124,25 @@ void rotateTires(float theta) {
     frontRightTireTheta += theta;
 }
 void rotateObjects(float theta) {
-    backLeftTireTheta += theta;
-    backRightTireTheta += theta;
     carTheta += theta;
-    baymaxTheta += theta;
-    
+    backLeftTireTheta += theta;
+    backRightTireTheta +=theta;
+    baymaxTheta +=theta;
+    cout << "theta: "<< theta << endl;
+    rotateTires(theta);
 }
 void translateObjects(float x, float y, float z) {
+    carX += x;
+    carY += y;
+    carZ += z;
+    
     backLeftTireX += x;
     backLeftTireY += y;
     backLeftTireZ += z;
     
-    frontLeftTireX += x;
+    frontLeftTireX = carX + 0.28;
     frontLeftTireY += y;
-    frontLeftTireZ += z;
+    frontLeftTireZ = carZ + 0.6;
     
     backRightTireX += x;
     backRightTireY += y;
@@ -180,19 +152,14 @@ void translateObjects(float x, float y, float z) {
     frontRightTireY += y;
     frontRightTireZ += z;
     
-    carX += x;
-    carY += y;
-    carZ += z;
+    
     
     baymaxX += x;
     baymaxY += y;
     baymaxZ += z;
-    
-    referenceX += x;
-    referenceY += y;
-    referenceZ += z;
+   
 }
-//looks at original car to front left tire orientation and makes sure this is consistent throughout translation
+
 void reset() {
     
      backLeftTireTheta = initialFrontLeftTireTheta;
@@ -225,14 +192,6 @@ void reset() {
      baymaxX = -2.5;
      baymaxY = 0.5;
      baymaxZ = -7.5;
-    
-     referenceTheta = 0;
-     referenceX = -2.5;
-     referenceY = 0.5;
-     referenceZ = -7.5;
-     referenceScale = 0.01;
-    
-    resetCounters();
 }
 int main( void )
 {
@@ -305,12 +264,11 @@ int main( void )
     Object backRightTire = Object(programID, "textures/tire.png", "objects/tire.obj");
     Object backLeftTire = Object(programID, "textures/tire.png", "objects/tire.obj");
     Object baymax = Object(programID, "textures/Solid_white.png", "objects/baymax.obj");
-    Object reference = Object(programID, "textures/Solid_white.png", "objects/reference.obj");
     
     frontLeftTire.setThetaMinAndMax(FRONT_LEFT_TIRE_MIN, FRONT_LEFT_TIRE_MAX);
     frontRightTire.setThetaMinAndMax(FRONT_RIGHT_TIRE_MIN, FRONT_RIGHT_TIRE_MAX);
     
-    Car car = Car(frontLeftTire, frontRightTire, backLeftTire, backRightTire, baymax, carObj, reference);
+    Car car = Car(frontLeftTire, frontRightTire, backLeftTire, backRightTire, baymax, carObj);
     do {
 
 		// Clear the screen
@@ -344,10 +302,8 @@ int main( void )
         Params frontRightTireParams = Params(ProjectionMatrix, ViewMatrix, frontRightTireX, frontRightTireY, frontRightTireZ, frontRightTireTheta, tireScale);
         
         Params carParams = Params(ProjectionMatrix, ViewMatrix, carX, carY, carZ, carTheta, carScale);
-        
-        Params referenceParams = Params(ProjectionMatrix, ViewMatrix, referenceX, referenceY, referenceZ, referenceTheta, referenceScale);
 
-        car.draw(frontLeftTireParams, frontRightTireParams, backLeftTireParams, backRightTireParams, baymaxParams, carParams, referenceParams);
+        car.draw(frontLeftTireParams, frontRightTireParams, backLeftTireParams, backRightTireParams, baymaxParams, carParams);
         
         
         
