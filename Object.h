@@ -85,9 +85,10 @@ private:
     glm::mat4 translation;
     glm::mat4 rotation;
     glm::mat4 scale;
-    glm::mat4 modelMatrix;
     glm::mat4 mvp;
 public:
+    glm::mat4 modelMatrix;
+
     Object(GLuint programID, string textureFileName, string objectFileName) {
         this->matrixID = glGetUniformLocation(programID, "MVP");
         this->texture = loadPNG(textureFileName.c_str());
@@ -104,12 +105,39 @@ public:
     }
     Object() {}
     ~Object() {}
+    void draw(Params params, glm::mat4 carModelMatrix) {
+        this->setScale(params.scale);
+        this->setTranslation(params.x, params.y, params.z);
+        this->setRotation(params.theta);
+        this->modelMatrix = glm::mat4(1.0);
+        this->modelMatrix = carModelMatrix * this->translation * this->rotation * this->scale;
+        
+        this->mvp = params.ProjectionMatrix * params.ViewMatrix  * this->modelMatrix;
+        
+        glUniformMatrix4fv(this->matrixID, 1, GL_FALSE, &this->mvp[0][0]);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, this->texture);
+        glUniform1i(this->textureID, 0);
+        
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, this->vertexBuffer);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, this->uvBuffer);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+        
+        glDrawArrays(GL_TRIANGLES, 0, this->vertices.size() );
+    }
+
     void draw(Params params) {
         this->setScale(params.scale);
         this->setTranslation(params.x, params.y, params.z);
         this->setRotation(params.theta);
         this->modelMatrix = glm::mat4(1.0);
         this->modelMatrix = this->translation * this->rotation * this->scale;
+        
         this->mvp = params.ProjectionMatrix * params.ViewMatrix * this->modelMatrix;
     
         glUniformMatrix4fv(this->matrixID, 1, GL_FALSE, &this->mvp[0][0]);
