@@ -28,69 +28,72 @@ using namespace std;
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-const float FRONT_LEFT_TIRE_MAX = 0.81;
-const float FRONT_LEFT_TIRE_MIN = 0.79;
-const float FRONT_RIGHT_TIRE_MAX = 3.98;
-const float FRONT_RIGHT_TIRE_MIN = 2.38;
+
 const float tireScale = 0.25;
 const float baymaxScale = 0.04;
 
 
-float backLeftTireTheta = 0;
-float backLeftTireX = 0.41;
-float backLeftTireY = 0.15;
-float backLeftTireZ = 0.48;
+const float backLeftTireTheta = 0;
+const float backLeftTireX = 0.41;
+const float backLeftTireY = 0.15;
+const float backLeftTireZ = 0.48;
 
 float carTheta = 2.1;
 float carX = -2.5;
 float carY = 0;
 float carZ = -7.5;
-float carScale = 1;
+const float carScale = 1;
 
 float tireTheta = carTheta;
 float frontLeftTireTheta = 0;
+
 const float frontLeftTireX = 0.41;
-float frontLeftTireY = 0.15;
+const float frontLeftTireY = 0.15;
 const float frontLeftTireZ = -0.55;
-float backRightTireTheta = M_PI;
-float backRightTireX = -0.41;
-float backRightTireY = 0.15;
-float backRightTireZ = 0.48;
+const float backRightTireTheta = M_PI;
+const float backRightTireX = -0.41;
+const float backRightTireY = 0.15;
+const float backRightTireZ = 0.48;
 
 float frontRightTireTheta = M_PI;
-float frontRightTireX = -0.41;
-float frontRightTireY = 0.15;
-float frontRightTireZ = -0.55;
+const float frontRightTireX = -0.41;
+const float frontRightTireY = 0.15;
+const float frontRightTireZ = -0.55;
+const float baymaxTheta = carTheta;
+const float baymaxX = 0;
+const float baymaxY = 0.5;
+const float baymaxZ = 0;
 
+const float translateX = 0.061111;
+const float FRONT_LEFT_TIRE_MAX = 0.81;
+const float FRONT_LEFT_TIRE_MIN = 0.79;
+const float FRONT_RIGHT_TIRE_MAX = 3.98;
+const float FRONT_RIGHT_TIRE_MIN = 2.38;
 
-
-
-float baymaxTheta = 0.5;
-float baymaxX = -2.5;
-float baymaxY = 0.5;
-float baymaxZ = -7.5;
-
-float translateX = 0.061111;
-
-void translateObjects(float, float, float);
-void rotateObjects(float);
 void rotateTires(float);
 void translateCar(float, float, float);
 void rotateCar(float);
-void moveCar() {
+int rotateCounter = 0;
+const int rotateMax = 9;
+void moveCar(FrontTire frontLeftTire, FrontTire frontRightTire) {
     const float rotateConst = 0.05;
-    
-    
+
     if (glfwGetKey( window, GLFW_KEY_L ) == GLFW_PRESS) {
         //right
-        //take care of min max
-        rotateTires(rotateConst);
+        
+        if(rotateCounter < rotateMax) {
+            rotateCounter++;
+            rotateTires(rotateConst);
+        }
+
+        
         
     } else if(glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) {
         //left
-        //take care of min max
-        rotateTires(-rotateConst);
-        
+        if(rotateCounter > -rotateMax) {
+            rotateCounter--;
+            rotateTires(-rotateConst);
+        }
     }
     
     
@@ -121,38 +124,11 @@ void rotateTires(float theta) {
 void rotateCar(float theta) {
     carTheta += theta;
 }
-void rotateObjects(float theta) {
-    backLeftTireTheta += theta;
-    backRightTireTheta +=theta;
-    baymaxTheta +=theta;
-}
 
 void translateCar(float x, float y, float z) {
     carX += x;
     carY += y;
     carZ += z;
-}
-void translateObjects(float x, float y, float z) {
-   
-    backLeftTireX += x;
-    backLeftTireY += y;
-    backLeftTireZ += z;
-    
-//    frontLeftTireX += x;
-    frontLeftTireY += y;
-//    frontLeftTireZ += z;
-    
-    backRightTireX += x;
-    backRightTireY += y;
-    backRightTireZ += z;
-    
-    frontRightTireX += x;
-    frontRightTireY += y;
-    frontRightTireZ += z;
-    baymaxX += x;
-    baymaxY += y;
-    baymaxZ += z;
-   
 }
 
 void reset() {
@@ -160,7 +136,6 @@ void reset() {
      carX = -2.5;
      carY = 0;
      carZ = -7.5;
-     carScale = 1;
 }
 bool init();
 int main( void )
@@ -230,7 +205,7 @@ int main( void )
         
         car.draw(frontLeftTireParams, frontRightTireParams, backLeftTireParams, backRightTireParams, baymaxParams, carParams);
         
-        moveCar();
+        moveCar(frontLeftTire, frontRightTire);
         Params parkingLotParams = Params(ProjectionMatrix, ViewMatrix, 0, 0, 0, 0, 1);
         parkingLot.draw(parkingLotParams);
         
